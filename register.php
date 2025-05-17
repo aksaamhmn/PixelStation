@@ -1,3 +1,56 @@
+<?php
+    
+    include 'server/connection.php';
+
+    if ($_SERVER["REQUEST_METHOD"] === "POST") {
+        $nama = trim($_POST['nama']);
+        $username = trim($_POST['username']);
+        $email = trim($_POST['email']);
+        $password = $_POST['password'];
+
+        if (empty($nama) || empty($username) || empty($email) || empty($password)) {
+            echo "<script>
+                    alert('Semua kolom wajib diisi!');
+                    window.location.href = 'register.php';
+                </script>";
+            exit;
+        }
+
+        $check = "SELECT * FROM users WHERE email = '$email' OR username = '$username'";
+        $result = mysqli_query($conn, $check);
+
+        if (mysqli_num_rows($result) > 0) {
+            echo "<script>
+                    alert('Email atau Username sudah digunakan!');
+                    window.location.href = 'register.php';
+                </script>";
+            exit;
+        }
+
+        $insert = "INSERT INTO users (nama, username, email, password)
+                VALUES ('$nama', '$username', '$email', '$password')";
+
+        if (mysqli_query($conn, $insert)) {
+            echo "
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        Swal.fire({
+                            title: 'Registrasi berhasil!',
+                            text: 'Anda akan diarahkan ke halaman login.',
+                            icon: 'success'
+                        }).then(function() {
+                            window.location.href = 'login.php';
+                        });
+                    });
+                </script>";
+        } else {
+            echo "<script>
+                    alert('Terjadi kesalahan saat menyimpan data. Silakan coba lagi.');
+                    window.location.href = 'register.php';
+                </script>";
+        }
+    }
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
