@@ -1,5 +1,56 @@
 <?php
-  include('layout/navbar.php')
+session_start();
+include './server/connection.php';
+include('layout/navbar.php');
+
+// Query untuk mengambil semua review dengan informasi terkait
+$reviews = [];
+try {
+    $stmt = $conn->prepare("SELECT 
+    rv.id_review,
+    rv.review_text,
+    rv.rating,
+    rv.created_at,
+    u.nama as customer_name,
+    u.username as customer_username,
+    r.telp as customer_phone,
+    r.id_reservasi,
+    r.reservation_date,
+    r.start_time,
+    r.end_time,
+    p.amount as price,
+    rm.section_room,
+    rm.type_room
+FROM review rv
+JOIN reservasi r ON rv.id_reservasi = r.id_reservasi
+JOIN users u ON rv.id_user = u.id_user
+JOIN room rm ON r.id_room = rm.id_room
+JOIN payments p ON r.id_payments = p.id_payments
+ORDER BY rv.created_at DESC");
+    
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    while ($row = $result->fetch_assoc()) {
+        $reviews[] = $row;
+    }
+    $stmt->close();
+} catch (Exception $e) {
+    echo "<script>console.error('Error query: " . $e->getMessage() . "');</script>";
+}
+
+// Function untuk menampilkan bintang rating
+function displayStars($rating) {
+    $stars = '';
+    for ($i = 1; $i <= 5; $i++) {
+        if ($i <= $rating) {
+            $stars .= '<i class="bi bi-star-fill text-warning"></i>';
+        } else {
+            $stars .= '<i class="bi bi-star text-muted"></i>';
+        }
+    }
+    return $stars;
+}
 ?>
 
 <!DOCTYPE html>
@@ -18,7 +69,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
 
   <!-- Additional CSS Files -->
-  <link rel="stylesheet" href="assets/css/fontawesome.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="assets/css/templatemo-lugx-gaming.css">
   <link rel="stylesheet" href="assets/css/owl.css">
   <link rel="stylesheet" href="assets/css/animate.css">
@@ -34,18 +85,41 @@
             <h6>Welcome to Pixel Station</h6>
             <h2>BEST GAMING SITE EVER!</h2>
             <p>
-              Lorem ipsum, dolor sit amet consectetur adipisicing elit. Corporis at voluptates, sapiente consequuntur magnam sunt placeat deleniti nobis itaque officiis dolorem dolorum laudantium nulla inventore animi, asperiores ut excepturi illum?
+              Pixel Station adalah tempat gaming modern yang menyediakan berbagai fasilitas gaming berkualitas tinggi. Nikmati pengalaman bermain game terbaik dengan perangkat gaming terkini dan suasana yang nyaman.
+              <span class="d-flex align-items-center mt-2">
+                <i class="fas fa-map-marker-alt me-2" style="color: #ffffff; font-size: 20px;"></i>
+                <span>Jl. Raya Dramaga No.123, Bogor</span>
+              </span>
+              <a href="reservasi.php" class="btn btn-primary mt-3 reserve-btn">Reserve Now</a>
             </p>
           </div>
         </div>
         <div class="col-lg-4 offset-lg-2">
           <div class="right-image">
-            <img src="assets/images/controllerbanner.png" alt="">
+            <img src="assets/images/controllerbanner.png" alt="Gaming Controller">
           </div>
         </div>
       </div>
     </div>
   </div>
+
+  <style>
+    .reserve-btn {
+      background: #967AA1;
+      padding: 12px 30px;
+      border-color: transparent;
+      border-radius: 25px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+
+    .reserve-btn:hover {
+      border-color: #fff;
+      background: #192A51;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(25,42,81,0.2);
+    }
+  </style>
 
   <div class="features">
     <div class="container">
@@ -53,10 +127,11 @@
         <div class="col-lg-3 col-md-6">
           <a href="#">
             <div class="item">
-              <div class="image">
-                <img src="assets/images/featured-01.png" alt="" style="max-width: 44px;">
+                    <div class="image">
+                <img src="/assets/images/feature-gamepad.png" alt="" style="max-width: 44px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2)); transition: transform 0.3s ease;">
               </div>
               <h4>Rent Game</h4>
+              <p>Sewa game favorit anda</p>
             </div>
           </a>
         </div>
@@ -64,9 +139,21 @@
           <a href="#">
             <div class="item">
               <div class="image">
-                <img src="assets/images/featured-02.png" alt="" style="max-width: 44px;">
+                <img src="assets/images/feature-dating.png" alt="" style="max-width: 44px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2)); transition: transform 0.3s ease;">
+              </div>
+              <h4>Dating</h4>
+              <p>Tempat dating yang nyaman</p>
+            </div>
+          </a>
+        </div>
+        <div class="col-lg-3 col-md-6">
+          <a href="#">
+            <div class="item">
+              <div class="image">
+                <img src="assets/images/feature-dinner.png" alt="" style="max-width: 44px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2)); transition: transform 0.3s ease;">
               </div>
               <h4>Launch</h4>
+              <p>Makanan dan minuman tersedia</p>
             </div>
           </a>
         </div>
@@ -74,19 +161,10 @@
           <a href="#">
             <div class="item">
               <div class="image">
-                <img src="assets/images/featured-03.png" alt="" style="max-width: 44px;">
+                <img src="assets/images/feature-sports.png" alt="" style="max-width: 44px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2)); transition: transform 0.3s ease;">
               </div>
-              <h4>Date</h4>
-            </div>
-          </a>
-        </div>
-        <div class="col-lg-3 col-md-6">
-          <a href="#">
-            <div class="item">
-              <div class="image">
-                <img src="assets/images/featured-04.png" alt="" style="max-width: 44px;">
-              </div>
-              <h4>Survive</h4>
+              <h4>Sports</h4>
+              <p>Turnamen game sport</p>
             </div>
           </a>
         </div>
@@ -98,7 +176,7 @@
   <div class="section trending">
     <div class="container">
       <div class="row">
-        <div class="col-lg-6">
+        <div class="col-lg-12 text-center mt-5">
           <div class="section-heading">
             <h6>Trending</h6>
             <h2>Trending Games</h2>
@@ -108,19 +186,19 @@
           <div class="swiper mySwiper w-full max-w-6xl px-4">
             <div class="swiper-wrapper">
               <div class="swiper-slide">
-                <img src="https://i.pinimg.com/736x/50/c9/32/50c932da1c89102a7efbcfdf8a39a0b0.jpg" class="rounded-xl w-full h-auto object-cover" />
+                <img src="https://image.api.playstation.com/pr/bam-art/194/344/6ce75216-5528-4ce4-be70-61829a547426.jpg" class="rounded-xl w-full h-auto object-cover" />
               </div>
               <div class="swiper-slide">
-                <img src="https://i.pinimg.com/736x/50/c9/32/50c932da1c89102a7efbcfdf8a39a0b0.jpg" class="rounded-xl w-full h-auto object-cover" />
+                <img src="https://image.api.playstation.com/vulcan/ap/rnd/202409/2712/1e1c42b14d92280e17bda697b8c4ae13ff9f91bdb10fca89.png" class="rounded-xl w-full h-auto object-cover" />
               </div>
               <div class="swiper-slide">
-                <img src="https://i.pinimg.com/736x/50/c9/32/50c932da1c89102a7efbcfdf8a39a0b0.jpg" class="rounded-xl w-full h-auto object-cover" />
+                <img src="https://image.api.playstation.com/vulcan/ap/rnd/202408/2010/6e7d87fef87405e9925e810a1620df04c3b98c2086711336.png" class="rounded-xl w-full h-auto object-cover" />
               </div>
               <div class="swiper-slide">
-                <img src="https://i.pinimg.com/736x/50/c9/32/50c932da1c89102a7efbcfdf8a39a0b0.jpg" class="rounded-xl w-full h-auto object-cover" />
+                <img src="https://image.api.playstation.com/vulcan/ap/rnd/202504/2402/4a7e73770c74b8d2ce61eb4693e0f0be1b44287526971f5d.png" class="rounded-xl w-full h-auto object-cover" />
               </div>
               <div class="swiper-slide">
-                <img src="https://i.pinimg.com/736x/50/c9/32/50c932da1c89102a7efbcfdf8a39a0b0.jpg" class="rounded-xl w-full h-auto object-cover" />
+                <img src="https://image.api.playstation.com/vulcan/ap/rnd/202202/2816/K6mmm89oNII1iI1aqaClO0wh.png" class="rounded-xl w-full h-auto object-cover" />
               </div>
             </div>
             <div class="swiper-pagination mt-4"></div>
@@ -138,10 +216,10 @@
     </div>
   </div>
 
-  <div class="section py-4">
+  <div class="section">
     <div class="container">
       <div class="d-flex flex-column align-items-center">
-        <div class="swiper roomPreviewSwiper mb-4" style="max-width: 700px;">
+        <div class="swiper roomPreviewSwiper" style="max-width: 700px;">
           <div class="swiper-wrapper">
             <!-- REGULAR SPOT -->
             <div class="swiper-slide position-relative">
@@ -217,7 +295,7 @@
             <li><strong>Fasilitas:</strong> Ruang Tertutup, Konsol & PC, Snack & Minuman, Layanan Khusus</li>
             <li><strong>Kapasitas:</strong> 2-10 orang</li>
           </ul>
-          <span class="badge px-3 py-1 rounded-pill" style="background: #0d6efd; color: #fff; font-size: 13px;">Luxury</span>
+          <span class="badge px-3 py-1 rounded-pill" style="background: #2d4fa2; color: #fff; font-size: 13px;">Luxury</span>
           <button type="button" class="btn-close position-absolute top-0 end-0 m-3" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
       </div>
@@ -258,6 +336,38 @@
       opacity: 1;
     }
   </style>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      var roomSwiper = new Swiper(".roomPreviewSwiper", {
+        effect: "coverflow",
+        grabCursor: true,
+        centeredSlides: true,
+        loop: false,
+        slidesPerView: 1,
+        spaceBetween: 30,
+        coverflowEffect: {
+          rotate: 30,
+          stretch: 0,
+          depth: 150,
+          modifier: 1.5,
+          slideShadows: true,
+        },
+        pagination: {
+          el: ".room-preview-pagination",
+          clickable: true
+        },
+        autoplay: {
+          delay: 2500,
+          disableOnInteraction: false
+        },
+        breakpoints: {
+          640: { slidesPerView: 1 },
+          768: { slidesPerView: 1 },
+          1024: { slidesPerView: 1 }
+        }
+      });
+    });
+  </script>
 
   <!-- Review Section -->
   <div class="col-lg-12 text-center mt-5">
@@ -270,155 +380,78 @@
   <!-- Carousel Review -->
   <div id="carouselExampleControls" class="carousel slide carousel-dark" data-bs-ride="carousel" data-bs-interval="4000" style="max-width: 900px; margin: 0 auto; position: relative;">
     <div class="carousel-inner">
-      <!-- Slide 1 -->
+      <?php 
+      if (!empty($reviews)):
+      // Sort reviews by created_at in descending order (newest first)
+      usort($reviews, function($a, $b) {
+        return strtotime($b['created_at']) - strtotime($a['created_at']);
+      });
+      
+      $totalReviews = count($reviews);
+      $cardsPerSlide = 3;
+      $totalSlides = ceil($totalReviews / $cardsPerSlide);
+      
+      for ($i = 0; $i < $totalSlides; $i++):
+        $startIndex = $i * $cardsPerSlide;
+      ?>
+      <div class="carousel-item <?php echo ($i === 0) ? 'active' : ''; ?>">
+        <div class="row justify-content-center">
+        <?php 
+        for ($j = 0; $j < $cardsPerSlide; $j++):
+          $index = $startIndex + $j;
+          if ($index < $totalReviews):
+          $review = $reviews[$index];
+          // Format dates
+          $reservationDate = date('d M Y', strtotime($review['reservation_date']));
+          $reviewDate = date('d M Y H:i', strtotime($review['created_at']));
+        ?>
+          <div class="col-md-4 mb-4">
+          <div class="card shadow h-100 text-center">
+        <div class="card-body">
+        <img class="rounded-circle shadow-1-strong mb-3"
+          src="/assets/images/profile.png" alt="avatar"
+          style="width: 100px;" />
+        <h5 class="mb-1"><?php echo htmlspecialchars($review['customer_name']); ?></h5>
+        <p class="mb-1 text-muted"><?php echo htmlspecialchars($review['customer_username']); ?></p>
+        <p class="text-muted small mb-2">
+          <?php echo htmlspecialchars($review['review_text']); ?>
+        </p>
+        <div class="d-flex justify-content-center mb-2">
+          <?php 
+          for($star = 1; $star <= 5; $star++): ?>
+            <?php if($star <= $review['rating']): ?>
+            <i class="bi bi-star-fill mx-1" style="color: #FFD700; text-shadow: 0 0 3px rgba(255,215,0,0.5); font-size: 1.2rem; transition: all 0.3s"></i>
+            <?php else: ?>
+            <i class="bi bi-star mx-1" style="color: #D3D3D3; font-size: 1.2rem; transition: all 0.3s"></i>
+            <?php endif; ?>
+          <?php endfor; ?>
+        </div>
+        <p class="text-muted small mb-0">
+          Visited on: <?php echo $reservationDate; ?><br>
+          Reviewed on: <?php echo $reviewDate; ?><br>
+          Room: <?php echo htmlspecialchars($review['section_room']); ?> - <?php echo htmlspecialchars($review['type_room']); ?>
+        </p>
+        </div>
+          </div>
+          </div>
+        <?php 
+          endif;
+        endfor; 
+        ?>
+        </div>
+      </div>
+      <?php 
+      endfor;
+      else: 
+      ?>
       <div class="carousel-item active">
         <div class="row justify-content-center">
-          <!-- Review 1 -->
-          <div class="col-md-4 mb-4">
-            <div class="card shadow h-100 text-center">
-              <div class="card-body">
-                <img class="rounded-circle shadow-1-strong mb-3"
-                  src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/img%20(10).webp" alt="avatar"
-                  style="width: 100px;" />
-                <h5 class="mb-1">Maria Kate</h5>
-                <p class="mb-1 text-muted">Photographer</p>
-                <p class="text-muted small">
-                  <i class="fas fa-quote-left pe-2"></i>
-                  Lorem ipsum dolor sit amet consectetur adipisicing elit. Minus et deleniti nesciunt sint eligendi reprehenderit reiciendis.
-                </p>
-                <ul class="list-unstyled d-flex justify-content-center text-warning mb-0">
-                  <li><i class="fas fa-star fa-sm"></i></li>
-                  <li><i class="fas fa-star fa-sm"></i></li>
-                  <li><i class="fas fa-star fa-sm"></i></li>
-                  <li><i class="fas fa-star fa-sm"></i></li>
-                  <li><i class="far fa-star fa-sm"></i></li>
-                </ul>
-              </div>
-            </div>
-          </div>
-          <!-- Review 2 -->
-          <div class="col-md-4 mb-4">
-            <div class="card shadow h-100 text-center">
-              <div class="card-body">
-                <img class="rounded-circle shadow-1-strong mb-3"
-                  src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/img%20(32).webp" alt="avatar"
-                  style="width: 100px;" />
-                <h5 class="mb-1">John Doe</h5>
-                <p class="mb-1 text-muted">Web Developer</p>
-                <p class="text-muted small">
-                  <i class="fas fa-quote-left pe-2"></i>
-                  Lorem ipsum dolor sit amet consectetur adipisicing elit. Minus et deleniti nesciunt sint eligendi reprehenderit reiciendis.
-                </p>
-                <ul class="list-unstyled d-flex justify-content-center text-warning mb-0">
-                  <li><i class="fas fa-star fa-sm"></i></li>
-                  <li><i class="fas fa-star fa-sm"></i></li>
-                  <li><i class="fas fa-star fa-sm"></i></li>
-                  <li><i class="fas fa-star fa-sm"></i></li>
-                  <li><i class="far fa-star fa-sm"></i></li>
-                </ul>
-              </div>
-            </div>
-          </div>
-          <!-- Review 3 -->
-          <div class="col-md-4 mb-4">
-            <div class="card shadow h-100 text-center">
-              <div class="card-body">
-                <img class="rounded-circle shadow-1-strong mb-3"
-                  src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/img%20(1).webp" alt="avatar"
-                  style="width: 100px;" />
-                <h5 class="mb-1">Anna Deynah</h5>
-                <p class="mb-1 text-muted">UX Designer</p>
-                <p class="text-muted small">
-                  <i class="fas fa-quote-left pe-2"></i>
-                  Lorem ipsum dolor sit amet consectetur adipisicing elit. Minus et deleniti nesciunt sint eligendi reprehenderit reiciendis.
-                </p>
-                <ul class="list-unstyled d-flex justify-content-center text-warning mb-0">
-                  <li><i class="fas fa-star fa-sm"></i></li>
-                  <li><i class="fas fa-star fa-sm"></i></li>
-                  <li><i class="fas fa-star fa-sm"></i></li>
-                  <li><i class="fas fa-star fa-sm"></i></li>
-                  <li><i class="far fa-star fa-sm"></i></li>
-                </ul>
-              </div>
-            </div>
-          </div>
+        <div class="col-12 text-center">
+          <p>No reviews available yet.</p>
+        </div>
         </div>
       </div>
-      <!-- Slide 2 -->
-      <div class="carousel-item">
-        <div class="row justify-content-center">
-          <!-- Review 4 -->
-          <div class="col-md-4 mb-4">
-            <div class="card shadow h-100 text-center">
-              <div class="card-body">
-                <img class="rounded-circle shadow-1-strong mb-3"
-                  src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/img%20(2).webp" alt="avatar"
-                  style="width: 100px;" />
-                <h5 class="mb-1">James Smith</h5>
-                <p class="mb-1 text-muted">Gamer</p>
-                <p class="text-muted small">
-                  <i class="fas fa-quote-left pe-2"></i>
-                  Great place to hang out and play the latest games. Highly recommended!
-                </p>
-                <ul class="list-unstyled d-flex justify-content-center text-warning mb-0">
-                  <li><i class="fas fa-star fa-sm"></i></li>
-                  <li><i class="fas fa-star fa-sm"></i></li>
-                  <li><i class="fas fa-star fa-sm"></i></li>
-                  <li><i class="fas fa-star fa-sm"></i></li>
-                  <li><i class="fas fa-star fa-sm"></i></li>
-                </ul>
-              </div>
-            </div>
-          </div>
-          <!-- Review 5 -->
-          <div class="col-md-4 mb-4">
-            <div class="card shadow h-100 text-center">
-              <div class="card-body">
-                <img class="rounded-circle shadow-1-strong mb-3"
-                  src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/img%20(5).webp" alt="avatar"
-                  style="width: 100px;" />
-                <h5 class="mb-1">Linda Lee</h5>
-                <p class="mb-1 text-muted">Streamer</p>
-                <p class="text-muted small">
-                  <i class="fas fa-quote-left pe-2"></i>
-                  The VIP spot is so comfortable and the staff are super friendly!
-                </p>
-                <ul class="list-unstyled d-flex justify-content-center text-warning mb-0">
-                  <li><i class="fas fa-star fa-sm"></i></li>
-                  <li><i class="fas fa-star fa-sm"></i></li>
-                  <li><i class="fas fa-star fa-sm"></i></li>
-                  <li><i class="fas fa-star fa-sm"></i></li>
-                  <li><i class="far fa-star fa-sm"></i></li>
-                </ul>
-              </div>
-            </div>
-          </div>
-          <!-- Review 6 -->
-          <div class="col-md-4 mb-4">
-            <div class="card shadow h-100 text-center">
-              <div class="card-body">
-                <img class="rounded-circle shadow-1-strong mb-3"
-                  src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/img%20(6).webp" alt="avatar"
-                  style="width: 100px;" />
-                <h5 class="mb-1">Michael Chen</h5>
-                <p class="mb-1 text-muted">Student</p>
-                <p class="text-muted small">
-                  <i class="fas fa-quote-left pe-2"></i>
-                  Affordable prices and a great selection of games. Will come again!
-                </p>
-                <ul class="list-unstyled d-flex justify-content-center text-warning mb-0">
-                  <li><i class="fas fa-star fa-sm"></i></li>
-                  <li><i class="fas fa-star fa-sm"></i></li>
-                  <li><i class="fas fa-star fa-sm"></i></li>
-                  <li><i class="far fa-star fa-sm"></i></li>
-                  <li><i class="far fa-star fa-sm"></i></li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <!-- Add more slides as needed -->
+      <?php endif; ?>
     </div>
     <!-- Carousel controls -->
     <button class="carousel-control-prev custom-carousel-btn" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="prev"
@@ -473,13 +506,7 @@
     }
   </style>
 
-  <footer>
-    <div class="container">
-      <div class="col-lg-12">
-        <p>Copyright © 2025 Pixel Station. All rights reserved.</p>
-      </div>
-    </div>
-  </footer>
+  
 
   <!-- Scripts -->
   <script src="vendor/jquery/jquery.min.js"></script>
@@ -533,5 +560,8 @@
       });
     });
   </script>
+
+  
+<?php include('layout/footer.php')?>
 </body>
 </html>
