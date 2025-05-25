@@ -134,7 +134,7 @@ $current_page = basename($_SERVER['PHP_SELF'], ".php");
                                     </ul>
                                 <?php }
                             } else {
-                                echo '<li><a id="sign-in" class="btn text-white" href="index.php">Login</a></li>';
+                                echo '<li><a id="sign-in" class="btn text-white" href="login.php">Login</a></li>';
                             }
                             ?>
                         </div>
