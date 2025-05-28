@@ -28,31 +28,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if ($result && $result->num_rows === 1) {
         $user = $result->fetch_assoc();
 
+        $_SESSION['id_user'] = $user['id_user'];
         $_SESSION['username'] = $user['username'];
         $_SESSION['nama'] = $user['nama'];
-        $_SESSION['log_in'] = true; // status login berhasil
-
-        echo "
-            <script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>
-            <script>
-                document.addEventListener('DOMContentLoaded', function() {
-                    Swal.fire({
-                        title: 'Login berhasil!',
-                        text: 'Anda akan diarahkan ke halaman utama.',
-                        icon: 'success'
-                    }).then(function() {
-                        window.location.href = 'index.php';
-                    });
-                });
-            </script>";
-        exit;
-    } else {
-        echo "<script>
-                alert('Username atau Password Salah. Silakan coba lagi.');
-                window.location.href = 'login.php';
-              </script>";
-        exit;
-    }
+        $_SESSION['log_in'] = true;
+        $_SESSION['swal_success'] = true;
+        } else {
+        $_SESSION['swal_error'] = true;
+        }
 }
 ?>
 
@@ -309,9 +292,33 @@ h1 {
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="sweetalert2.min.js"></script>
-    <script>
-        import Swal from 'sweetalert2/dist/sweetalert2.js'
-        import 'sweetalert2/src/sweetalert2.scss'
-    </script>
 </body>
 </html>
+
+<?php if (isset($_SESSION['swal_success'])): ?>
+<script>
+    Swal.fire({
+        icon: 'success',
+        title: 'Login Berhasil!',
+         text: 'Selamat datang, <?= $_SESSION['nama'] ?? '' ?>!',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#967AA1'
+    }).then(function() {
+        window.location.href = 'index.php';
+    });
+    <?php unset($_SESSION['swal_success']); ?>
+</script>
+<?php endif; ?>
+
+<?php if (isset($_SESSION['swal_error'])): ?>
+<script>
+    Swal.fire({
+        icon: 'error',
+        title: 'Login gagal!',
+        text: 'Username atau passsword salah!',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#967AA1'
+    });
+    <?php unset($_SESSION['swal_error']); ?>
+</script>
+<?php endif; ?>
