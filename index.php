@@ -88,7 +88,7 @@ function displayStars($rating) {
               Pixel Station adalah tempat gaming modern yang menyediakan berbagai fasilitas gaming berkualitas tinggi. Nikmati pengalaman bermain game terbaik dengan perangkat gaming terkini dan suasana yang nyaman.
               <span class="d-flex align-items-center mt-2">
                 <i class="fas fa-map-marker-alt me-2" style="color: #ffffff; font-size: 20px;"></i>
-                <span>Jl. Raya Dramaga No.123, Bogor</span>
+                <span>Jl. KHP Hasan Mustafa, Bandung</span>
               </span>
               <a href="reservasi.php" class="btn btn-primary mt-3 reserve-btn">Reserve Now</a>
             </p>
@@ -186,19 +186,19 @@ function displayStars($rating) {
           <div class="swiper mySwiper w-full max-w-6xl px-4">
             <div class="swiper-wrapper">
               <div class="swiper-slide">
-                <img src="https://image.api.playstation.com/pr/bam-art/194/344/6ce75216-5528-4ce4-be70-61829a547426.jpg" class="rounded-xl w-full h-auto object-cover" />
+                <img src="./assets/images/gta.avif" class="rounded-xl w-full h-auto object-cover" />
               </div>
               <div class="swiper-slide">
-                <img src="https://image.api.playstation.com/vulcan/ap/rnd/202409/2712/1e1c42b14d92280e17bda697b8c4ae13ff9f91bdb10fca89.png" class="rounded-xl w-full h-auto object-cover" />
+                <img src="./assets/images/fifa.avif" class="rounded-xl w-full h-auto object-cover" />
               </div>
               <div class="swiper-slide">
-                <img src="https://image.api.playstation.com/vulcan/ap/rnd/202408/2010/6e7d87fef87405e9925e810a1620df04c3b98c2086711336.png" class="rounded-xl w-full h-auto object-cover" />
+                <img src="./assets/images/wuwa.avif" class="rounded-xl w-full h-auto object-cover" />
               </div>
               <div class="swiper-slide">
-                <img src="https://image.api.playstation.com/vulcan/ap/rnd/202504/2402/4a7e73770c74b8d2ce61eb4693e0f0be1b44287526971f5d.png" class="rounded-xl w-full h-auto object-cover" />
+                <img src="./assets/images/nba.avif" class="rounded-xl w-full h-auto object-cover" />
               </div>
               <div class="swiper-slide">
-                <img src="https://image.api.playstation.com/vulcan/ap/rnd/202202/2816/K6mmm89oNII1iI1aqaClO0wh.png" class="rounded-xl w-full h-auto object-cover" />
+                <img src="./assets/images/genshin.avif" class="rounded-xl w-full h-auto object-cover" />
               </div>
             </div>
             <div class="swiper-pagination mt-4"></div>

@@ -22,7 +22,7 @@ $current_page = basename($_SERVER['PHP_SELF'], ".php");
             bottom: 0;
             width: 0;
             height: 2px;
-            background: #ff6600;
+            background: #967AA1;
             transition: width 0.4s cubic-bezier(0.4,0,0.2,1);
         }
         .nav a:hover::after,
@@ -30,41 +30,37 @@ $current_page = basename($_SERVER['PHP_SELF'], ".php");
             width: 100%;
         }
         .nav a:hover {
-            color: #ff6600;
+            color: #967AA1;
         }
         #sign-in {
-            background-color: #ee626b;
-            text-transform: uppercase;
-            font-weight: 500;
-            padding: 8px 18px;
-            border-radius: 2rem;
-            margin-top: 10px;
-            margin-bottom: 0;
-            display: flex;
-            align-items: center;
-            height: 45px;
-            justify-content: center;
-            position: sticky;
-        }
+    background-color: #967AA1;
+    text-transform: uppercase;
+    font-weight: 500;
+    padding: 8px 18px;
+    border-radius: 2rem;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+}
 
+#sign-in:hover {
+    background-color: transparent;
+    border-color: #967AA1;
+    color: #967AA1;
+}
+.header-sticky #sign-in{
+    margin-top: 3px;
+}
+.header-area #sign-in{
+    margin-bottom: 4px;
+}
 
-        #sign-in:hover {
-            background-color: transparent;
-            border-color: #fff;
-            color: #ee626b;
-        }
-
-
-        .header-area #sign-in,
-        .header-area.header-sticky #sign-in {
-            margin-bottom: 0;
-            margin-top: 8px;
-            display: flex;
-            align-items: center;
-            height: 45px;
-            justify-content: center;
-        }
-
+      
+       
     </style>
     <!-- Make sure Bootstrap CSS is included in your <head> (add if missing) -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -72,7 +68,7 @@ $current_page = basename($_SERVER['PHP_SELF'], ".php");
 <body>
     <!-- Preloader -->
     <div id="preloader" style="position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;background:#fff;display:flex;align-items:center;justify-content:center;">
-        <span style="font-size:2rem;color:#ff6600;">Loading...</span>
+        <span style="font-size:2rem;color:#967AA1;">Loading...</span>
     </div>
     <!-- Header -->
     <header class="header-area header-sticky">
@@ -81,13 +77,13 @@ $current_page = basename($_SERVER['PHP_SELF'], ".php");
                 <div class="col-12">
                     <nav class="main-nav">
                         <!-- Logo -->
-                        <a href="index.php" class="logo">
-                            <img src="assets/images/PIXEL STATION.png" alt="" style="width: 158px; margin-top: -25px;">
+                        <a href="login.php" class="logo">
+                            <img src="/assets/images/PIXEL STATION.gif" alt="" style="width: 158px; margin-top: -25px;">
                         </a>
                         <!-- Menu -->
                         <ul class="nav">
                             <li>
-                                <a href="home.php" class="<?php echo ($current_page == 'home') ? 'active' : ''; ?>">Home</a>
+                                <a href="index.php" class="<?php echo ($current_page == 'index') ? 'active' : ''; ?>">Home</a>
                             </li>
                             <li>
                                 <a href="gamelist.php" class="<?php echo ($current_page == 'gamelist') ? 'active' : ''; ?>">Game List</a>
@@ -102,7 +98,6 @@ $current_page = basename($_SERVER['PHP_SELF'], ".php");
                         <div class="ms-auto p-2">
                             <?php
                             if (isset($_SESSION['log_in']) && $_SESSION['log_in'] === true) {
-                                // Hide dropdown if on profile.php
                                 if ($current_page !== 'profile') { ?>
                                     <ul class="navbar-nav align-items-center">
                                         <li class="nav-item dropdown">
@@ -115,9 +110,12 @@ $current_page = basename($_SERVER['PHP_SELF'], ".php");
                                                         <img src="../assets/images/profile.png" alt="mdo" width="55" height="55" class="rounded-circle">
                                                     </div>
                                                     <div class="col m-2">
-                                                        <h5 class="text-dark mb-0">Nama</h5>
-                                                        <p class="text-dark mb-0">Email</p>
-                                                        <p class="text-dark mb-0">Status</p>
+                                                        <h5 class="text-dark mb-0">
+                                                            <?php echo isset($_SESSION['nama']) ? htmlspecialchars($_SESSION['nama']) : 'Nama'; ?>
+                                                        </h5>
+                                                        <p class="text-dark mb-0">
+                                                            <?php echo isset($_SESSION['username']) ? htmlspecialchars($_SESSION['username']) : 'Username'; ?>
+                                                        </p>
                                                     </div>
                                                 </li>
                                                 <li>
@@ -132,9 +130,11 @@ $current_page = basename($_SERVER['PHP_SELF'], ".php");
                                             </ul>
                                         </li>
                                     </ul>
+                                <?php } else { ?>
+                                    <a id="sign-in" class="btn text-white px-4 py-2" href="logout.php" >Logout</a>
                                 <?php }
                             } else {
-                                echo '<li><a id="sign-in" class="btn text-white" href="login.php">Login</a></li>';
+                                echo '<li><a id="sign-in" class="btn text-white px-4 py-2 " href="login.php">Login</a></li>';
                             }
                             ?>
                         </div>
@@ -146,7 +146,8 @@ $current_page = basename($_SERVER['PHP_SELF'], ".php");
             </div>
         </div>
     </header>
-    
+                            
+
     <!-- End Header -->
     <!-- Bootstrap JS Bundle (includes Popper) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
