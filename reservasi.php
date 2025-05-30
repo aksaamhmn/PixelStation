@@ -3,16 +3,18 @@ session_start();
 include('layout/navbar.php');
 include 'server/connection.php';
 
-// Ambil data ruangan dari database
+// Ambil data ruangan dari database dengan harga
 $queryRooms = "SELECT * FROM room";
 $resultRooms = mysqli_query($conn, $queryRooms);
 
-// Organisasi ruangan berdasarkan tipe
+// Organisasi ruangan berdasarkan tipe dengan informasi lengkap
 $rooms = [
   'reguler' => [],
   'vip' => [],
   'private' => []
 ];
+
+$roomPrices = []; // Menyimpan harga per ID room untuk akses cepat
 
 while ($row = mysqli_fetch_assoc($resultRooms)) {
   $type = strtolower($row['type_room']); // Pastikan lowercase: reguler, vip, private
@@ -20,14 +22,25 @@ while ($row = mysqli_fetch_assoc($resultRooms)) {
     $rooms[$type][] = [
       'id' => $row['id_room'],
       'name' => $row['section_room'],
-      'img' => 'assets/images/' . $row['gambar']
+      'img' => 'assets/images/' . $row['gambar'],
+      'price' => $row['harga'] // Ambil harga dari database
     ];
+    
+    // Simpan harga berdasarkan ID room untuk referensi JavaScript
+    $roomPrices[$row['id_room']] = $row['harga'];
   }
 }
 
-// Ganti dengan query real
+// Query untuk mengambil waktu terpakai, HANYA dari reservasi dengan payment_status yang bukan 'rejected'
 $reservedTimes = [];
-$sqlReserved = "SELECT id_room,reservation_date, start_time, end_time FROM reservasi WHERE reservation_date >= CURDATE()";
+$sqlReserved = "
+    SELECT r.id_room, r.start_time, r.end_time
+    FROM reservasi r
+    JOIN payments p ON r.id_payments = p.id_payments
+    WHERE p.payment_status IN ('pending', 'confirmed', 'paid', 'success')
+      AND p.payment_status != 'rejected'
+      AND r.reservation_date = CURDATE()";
+    
 $resultReserved = mysqli_query($conn, $sqlReserved);
 while ($row = mysqli_fetch_assoc($resultReserved)) {
   $id = $row['id_room'];
@@ -39,8 +52,8 @@ $jsonReservedTimes = json_encode($reservedTimes);
 
 // Encode untuk dikirim ke JavaScript
 $jsonRooms = json_encode($rooms);
+$jsonRoomPrices = json_encode($roomPrices);
 
-// Proses form reservasi
 // Pastikan id_user sudah ada di session jika user sudah login
 if (!isset($_SESSION['id_user']) && isset($_SESSION['username'])) {
   $username = $_SESSION['username'];
@@ -51,29 +64,27 @@ if (!isset($_SESSION['id_user']) && isset($_SESSION['username'])) {
   }
 }
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-  $id_room = $_POST['id_room'];
-  $nama = $_POST['nama'];
-  $username = $_POST['username'];
-  $telp = $_POST['telp'];
-  $reservation_date = $_POST['reservation_date'];
-  $start_time = $_POST['start_time'];
-  $end_time = $_POST['end_time'];
-  $id_user = (isset($_SESSION['id_user']) && !empty($_SESSION['id_user'])) ? $_SESSION['id_user'] : 1; // default id_user = 1 jika belum login
-
-  $insert_query = "INSERT INTO reservasi (id_room, id_user, nama, username, telp, reservation_date, start_time, end_time)
-                   VALUES ('$id_room', '$id_user', '$nama', '$username', '$telp', '$reservation_date', '$start_time', '$end_time')";
-
-  if (mysqli_query($conn, $insert_query)) {
-    echo "<script>
-      alert('Reservasi berhasil!');
-      window.location.href = 'profile.php';
-    </script>";
-    exit;
-  } else {
-    echo "<script>alert('Gagal melakukan reservasi.');</script>";
+// Ambil deskripsi room types dari database (asumsi ada tabel room_types atau informasi di tabel room)
+// Jika tidak ada tabel terpisah, kita bisa menggunakan data statis atau membuat query untuk mengambil info unik per type
+$roomTypeDescriptions = [];
+$queryRoomTypes = "SELECT DISTINCT type_room FROM room";
+$resultRoomTypes = mysqli_query($conn, $queryRoomTypes);
+while ($row = mysqli_fetch_assoc($resultRoomTypes)) {
+  $type = strtolower($row['type_room']);
+  // Anda bisa menyimpan deskripsi ini di database atau membuatnya dinamis
+  switch($type) {
+    case 'reguler':
+      $roomTypeDescriptions[$type] = "Reguler - Kapasitas 4 orang. Aturan: Tidak boleh merokok, waktu maksimal 2 jam.";
+      break;
+    case 'vip':
+      $roomTypeDescriptions[$type] = "VIP - Kapasitas 8 orang. Aturan: Boleh membawa makanan, waktu maksimal 4 jam.";
+      break;
+    case 'private':
+      $roomTypeDescriptions[$type] = "Private - Kapasitas 2 orang. Aturan: Privasi penuh, waktu maksimal 3 jam.";
+      break;
   }
 }
+
 ?>
 
 <!DOCTYPE html>
@@ -92,10 +103,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   <link rel="stylesheet" href="assets/css/owl.css">
   <link rel="stylesheet" href="assets/css/animate.css">
   <link rel="stylesheet" href="https://unpkg.com/swiper@7/swiper-bundle.min.css"/>
-  <!--
-    TemplateMo 589 lugx gaming
-    https://templatemo.com/tm-589-lugx-gaming
-  -->
 </head>
 
 <body>
@@ -126,41 +133,45 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <div class="col-lg-12">
                       <fieldset class="mb-3">
                         <div class="row">
-                          <div class="col-md-6">
+                            <div class="col-md-6">
                             <fieldset class="mb-3">
+                              <label for="name" class="form-label">Full Name</label>
                               <input type="text" name="nama" id="name" class="form-control"
-                                value="<?php echo isset($_SESSION['nama']) ? htmlspecialchars($_SESSION['nama']) : 'Nama Lengkap'; ?>"
-                                autocomplete="on" required readonly>
+                              value="<?php echo isset($_SESSION['nama']) ? htmlspecialchars($_SESSION['nama']) : ''; ?>"
+                              placeholder="Enter your full name"
+                              autocomplete="on" required readonly>
                             </fieldset>
                             <fieldset class="mb-3">
-                              <input type="text" name="telp" id="subject" class="form-control" value="+62" autocomplete="on">
+                              <label for="subject" class="form-label">Phone Number</label>
+                              <input type="tel" name="telp" id="subject" class="form-control" value="+62" required
+                              pattern="\+62[0-9\-]+"
+                              autocomplete="on">
                             </fieldset>
-                          </div>
-                          <div class="col-md-6">
+                            </div>
+                            <div class="col-md-6">
                             <fieldset class="mb-3">
+                              <label for="username" class="form-label">Username</label>
                               <input type="text" name="username" id="username" class="form-control"
-                                value="<?php echo isset($_SESSION['username']) ? htmlspecialchars($_SESSION['username']) : 'Username'; ?>"
-                                autocomplete="on" required readonly>
+                              value="<?php echo isset($_SESSION['username']) ? htmlspecialchars($_SESSION['username']) : ''; ?>"
+                              placeholder="Enter username"
+                              autocomplete="on" required readonly>
                             </fieldset>
                             <fieldset class="mb-3">
+                              <label for="reservation-date" class="form-label">Reservation Date</label>
                               <input type="text" id="reservation-date" name="reservation_date" class="form-control datepicker" 
-                                    placeholder="Pilih Tanggal..." required>
+                                placeholder="Select date..." required>
                             </fieldset>
-                          </div>
+                            </div>
                         </div>
                         <div class="mb-3">
                           <fieldset class="mb-0">
                             <select name="room_type" id="room_type" required class="form-control">
                               <option value="" disabled selected>Pilih Tipe Ruangan</option>
-                              <option value="reguler">
-                                Reguler - Kapasitas 4 orang. Aturan: Tidak boleh merokok, waktu maksimal 2 jam.
+                              <?php foreach($roomTypeDescriptions as $type => $description): ?>
+                              <option value="<?php echo $type; ?>">
+                                <?php echo $description; ?>
                               </option>
-                              <option value="vip">
-                                VIP - Kapasitas 8 orang. Aturan: Boleh membawa makanan, waktu maksimal 4 jam.
-                              </option>
-                              <option value="private">
-                                Private - Kapasitas 2 orang. Aturan: Privasi penuh, waktu maksimal 3 jam.
-                              </option>
+                              <?php endforeach; ?>
                             </select>
                           </fieldset>
                         </div>
@@ -171,6 +182,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             <!-- Room radio/button will be rendered here -->
                           </div>
                         </fieldset>
+
+                        <!-- Price Display -->
+                        <div id="price-display" class="mb-3" style="display:none;">
+                          <div class="alert alert-info">
+                            <strong>Harga per Jam:</strong> <span id="room-price">Rp 0</span>
+                          </div>
+                        </div>
+
                         <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
                         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
                         <script>
@@ -180,18 +199,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             disableMobile: true
                           });
 
-                          // Data ruangan sesuai permintaan
+                          // Data ruangan dan harga dari database
                           const roomsData = <?php echo $jsonRooms; ?>;
+                          const roomPrices = <?php echo $jsonRoomPrices; ?>;
 
                           const roomTypeSelect = document.getElementById('room_type');
                           const roomSelectionFieldset = document.getElementById('room-selection-fieldset');
                           const roomSelectionDiv = document.getElementById('room-selection');
+                          const priceDisplay = document.getElementById('price-display');
+                          const roomPriceSpan = document.getElementById('room-price');
                           let selectedRoomType = "";
+                          let selectedRoomId = "";
 
                           roomTypeSelect.addEventListener('change', function() {
                             selectedRoomType = this.value;
                             renderRoomOptions(selectedRoomType);
                             roomSelectionFieldset.style.display = 'block';
+                            priceDisplay.style.display = 'none'; // Hide price until room is selected
                           });
 
                           function renderRoomOptions(type) {
@@ -211,11 +235,31 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                               const label = document.createElement('label');
                               label.className = 'btn btn-outline-primary mb-2';
                               label.htmlFor = radio.id;
-                              label.innerText = room.name;
+                              label.innerHTML = `${room.name}<br><small>Rp ${parseInt(room.price).toLocaleString('id-ID')}/jam</small>`;
+
+                              // Add event listener for price display
+                              radio.addEventListener('change', function() {
+                                if (this.checked) {
+                                  selectedRoomId = this.value;
+                                  const price = parseInt(room.price);
+                                  roomPriceSpan.textContent = `Rp ${price.toLocaleString('id-ID')}`;
+                                  priceDisplay.style.display = 'block';
+                                }
+                              });
 
                               roomSelectionDiv.appendChild(radio);
                               roomSelectionDiv.appendChild(label);
                             });
+                          }
+
+                          // Format number to Indonesian currency
+                          function formatCurrency(amount) {
+                            return new Intl.NumberFormat('id-ID', {
+                              style: 'currency',
+                              currency: 'IDR',
+                              minimumFractionDigits: 0,
+                              maximumFractionDigits: 0
+                            }).format(amount);
                           }
                         </script>
                         <style>
@@ -232,6 +276,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             min-width: 120px;
                             text-align: center;
                           }
+                          #room-selection label small {
+                            color: #666;
+                            font-weight: normal;
+                          }
                           @media (max-width: 767.98px) {
                             .d-flex.flex-md-row {
                               flex-direction: column !important;
@@ -239,9 +287,38 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                           }
                         </style>
                         <div class="col-lg-12 text-center">
-                          <fieldset>
-                            <button type="button" id="form-submit" class="orange-button">Make Payment</button>
-                          </fieldset>
+                            <fieldset>
+                            <?php if (!isset($_SESSION['username'])): ?>
+                              <button class="mt-5" type="button" id="login-submit">Login to Make Payment</button>
+                                <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+                                <script>
+                                document.getElementById('login-submit').addEventListener('click', function() {
+                                  Swal.fire({
+                                  icon: 'warning',
+                                  title: 'Belum Login',
+                                  text: 'Silakan login terlebih dahulu untuk melakukan reservasi.',
+                                  confirmButtonText: 'Login',
+                                  allowOutsideClick: false,
+                                  iconPosition: 'center',
+                                  customClass: {
+                                  icon: 'swal2-icon-center'
+                                  }
+                                  }).then((result) => {
+                                  if (result.isConfirmed) {
+                                  window.location.href = 'login.php';
+                                  }
+                                  });
+                                });
+                                </script>
+                                <style>
+                                .swal2-icon-center {
+                                  margin: 1em auto !important;
+                                }
+                                </style>
+                            <?php else: ?>
+                              <button type="button" id="form-submit" class="mt-5">Make Payment</button>
+                            <?php endif; ?>
+                            </fieldset>
                         </div>
                       </fieldset>
                     </div>
@@ -268,6 +345,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             <label for="end-time" class="form-label">End Time</label>
                             <select id="end-time" class="form-control"></select>
                           </div>
+                        </div>
+                        <div class="alert alert-success" id="price-calculation" style="display:none;">
+                          <strong>Estimasi Biaya:</strong> <span id="total-price">Rp 0</span>
                         </div>
                       </div>
                       <div class="modal-footer">
@@ -339,7 +419,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     return (start1 < end2 && start2 < end1);
                   }
 
+                  // Function to calculate price
+                  function calculatePrice(startTime, endTime, roomId) {
+                    const startHour = parseInt(startTime.split(':')[0]) + parseInt(startTime.split(':')[1])/60;
+                    const endHour = parseInt(endTime.split(':')[0]) + parseInt(endTime.split(':')[1])/60;
+                    const duration = endHour - startHour;
+                    const pricePerHour = roomPrices[roomId] || 0;
+                    return pricePerHour * duration;
+                  }
+
                   // Show modal hanya saat tombol "Make Payment" ditekan
+                  <?php if (isset($_SESSION['username'])): ?>
                   document.getElementById('form-submit').addEventListener('click', function(e) {
                     e.preventDefault();
 
@@ -368,8 +458,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     // Isi pilihan waktu mulai (start time)
                     const startSelect = document.getElementById('start-time');
                     const endSelect = document.getElementById('end-time');
+                    const priceCalculation = document.getElementById('price-calculation');
+                    const totalPriceSpan = document.getElementById('total-price');
+                    
                     startSelect.innerHTML = '';
                     endSelect.innerHTML = '';
+                    priceCalculation.style.display = 'none';
 
                     // Filter start times agar tidak bentrok dengan reservasi yang sudah ada
                     function isStartTimeAvailable(start) {
@@ -388,8 +482,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                       }
                     });
 
+                    function updatePriceCalculation() {
+                      const start = startSelect.value;
+                      const end = endSelect.value;
+                      if (start && end) {
+                        const totalPrice = calculatePrice(start, end, roomId);
+                        totalPriceSpan.textContent = formatCurrency(totalPrice);
+                        priceCalculation.style.display = 'block';
+                      } else {
+                        priceCalculation.style.display = 'none';
+                      }
+                    }
+
                     startSelect.addEventListener('change', function () {
                       endSelect.innerHTML = '';
+                      priceCalculation.style.display = 'none';
                       const startTime = this.value;
                       if (!startTime) return;
 
@@ -421,29 +528,31 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                           const option = new Option('18:00', '18:00');
                           endSelect.add(option);
                         }
-                        return;
-                      }
+                      } else {
+                        let currentHour = 1;
+                        let newTime = addHours(startTime, currentHour);
 
-                      let currentHour = 1;
-                      let newTime = addHours(startTime, currentHour);
-
-                      while (newTime <= maxTime) {
-                        // Validasi bentrok
-                        let conflict = false;
-                        for (const t of times) {
-                          if (isOverlap(startTime, newTime, t.start, t.end)) {
-                            conflict = true;
-                            break;
+                        while (newTime <= maxTime) {
+                          // Validasi bentrok
+                          let conflict = false;
+                          for (const t of times) {
+                            if (isOverlap(startTime, newTime, t.start, t.end)) {
+                              conflict = true;
+                              break;
+                            }
                           }
+                          if (!conflict) {
+                            const option = new Option(newTime, newTime);
+                            endSelect.add(option);
+                          }
+                          currentHour++;
+                          newTime = addHours(startTime, currentHour);
                         }
-                        if (!conflict) {
-                          const option = new Option(newTime, newTime);
-                          endSelect.add(option);
-                        }
-                        currentHour++;
-                        newTime = addHours(startTime, currentHour);
                       }
+                      updatePriceCalculation();
                     });
+
+                    endSelect.addEventListener('change', updatePriceCalculation);
 
                     // Trigger change untuk populate end time awal
                     startSelect.dispatchEvent(new Event('change'));
@@ -452,6 +561,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     const roomModal = new bootstrap.Modal(document.getElementById('roomModal'));
                     roomModal.show();
                   });
+                  <?php endif; ?>
 
                   // Submit data ketika tombol Confirm di modal ditekan
                   document.getElementById('confirm-reservation').addEventListener('click', function() {
@@ -473,31 +583,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                       }
                     }
 
-                    // Buat input hidden untuk waktu
-                    ['start_time', 'end_time'].forEach(id => {
-                      const oldInput = document.querySelector(`input[name="${id}"]`);
-                      if (oldInput) oldInput.remove();
-                    });
-
-                    const startInput = document.createElement('input');
-                    startInput.type = 'hidden';
-                    startInput.name = 'start_time';
-                    startInput.value = start;
-                    document.getElementById('contact-form').appendChild(startInput);
-
-                    const endInput = document.createElement('input');
-                    endInput.type = 'hidden';
-                    endInput.name = 'end_time';
-                    endInput.value = end;
-                    document.getElementById('contact-form').appendChild(endInput);
-
-                    document.getElementById('contact-form').submit();
-                    // Store reservation data in session storage
+                    // Create form to submit to payment.php
                     const roomType = document.getElementById('room_type').value;
                     const reservationDate = document.getElementById('reservation-date').value;
                     const roomName = roomsData[roomType].find(r => r.id == roomId)?.name || '';
                     
-                    // Calculate price based on room type and duration
+                    // Calculate price and duration using database values
                     const startTime = start;
                     const endTime = end;
                     
@@ -506,12 +597,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     const endHour = parseInt(endTime.split(':')[0]) + parseInt(endTime.split(':')[1])/60;
                     const duration = endHour - startHour;
                     
-                    // Calculate price based on room type (you can adjust these prices)
-                    let pricePerHour = 0;
-                    if (roomType === 'reguler') pricePerHour = 50000;
-                    else if (roomType === 'vip') pricePerHour = 100000;
-                    else if (roomType === 'private') pricePerHour = 75000;
-                    
+                    // Get price from database (already loaded in roomPrices)
+                    const pricePerHour = roomPrices[roomId] || 0;
                     const totalPrice = pricePerHour * duration;
                     
                     // Create form to submit to payment.php
@@ -554,14 +641,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       </div>
     </div>
   </div>
-
-  <footer>
-    <div class="container">
-      <div class="col-lg-12">
-        <p>Copyright © 2025 Pixel Station. All rights reserved.</p>
-      </div>
-    </div>
-  </footer>
+  
+<?php include('layout/footer.php')?>
 
   <!-- Bootstrap core JavaScript -->
   <script src="vendor/jquery/jquery.min.js"></script>

@@ -148,7 +148,7 @@ body {
 }
 
 .section-heading h6 {
-  color: #ee626b;
+  color: #967AA1;
   font-size: 15px;
   text-transform: uppercase;
   font-weight: 700;
@@ -160,7 +160,7 @@ body {
 
 .main-button a {
   display: inline-block;
-  background-color: #ee626b;
+  background-color: #967AA1;
   text-transform: uppercase;
   color: #fff;
   font-size: 14px;
@@ -173,7 +173,7 @@ body {
 }
 
 .main-button a:hover {
-  background-color: #0071f8;
+  background-color: #967AA1;
   color: #fff;
 }
 
@@ -600,7 +600,7 @@ Header Style
   }
   .header-area.header-sticky .nav li a:hover,
   .header-area.header-sticky .nav li a.active {
-    color: #ee626b!important;
+    color: #967AA1!important;
     opacity: 1;
   }
   .header-area.header-sticky .nav li.search-icon a {
@@ -746,7 +746,7 @@ Banner Style
   display: inline-block;
   height: 50px;
   line-height: 50px;
-  background-color: #ee626b;
+  background-color: #967AA1;
   color: #fff;
   font-size: 15px;
   text-transform: uppercase;
@@ -785,12 +785,12 @@ Banner Style
   padding: 4px 15px;
 }
 
-.main-banner .right-image span.offer {
+/* .main-banner .right-image span.offer {
   position: absolute;
   left: -25px;
   bottom: -25px;
   border-radius: 50%;
-  background-color: #ee626b;
+  background-color: #967AA1;
   font-size: 28px;
   text-transform: uppercase;
   font-weight: 700;
@@ -800,7 +800,7 @@ Banner Style
   height: 100px;
   text-align: center;
   line-height: 100px;
-}
+} */
 
 
 
@@ -834,13 +834,15 @@ Services Style
   display: inline-block;
   text-align: center;
   line-height: 90px;
-  background-color: #0071f8;
+  background-color: transparent; /* Removed background color */
   border-radius: 50%;
   transition: all .3s;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Kept subtle shadow */
 }
 
 .features .item:hover .image {
-  background-color: #ee626b;
+  background-color: transparent; /* Removed background color */
+  box-shadow: 0 6px 12px rgba(0,0,0,0.15); /* Kept shadow on hover */
 }
 
 
@@ -916,7 +918,7 @@ Trending Style
   line-height: 40px;
   width: 40px;
   height: 40px;
-  background-color: #ee626b;
+  background-color: #967AA1;
   color: #fff;
   border-radius: 50%;
   right: 25px;
@@ -988,7 +990,7 @@ Most Played Style
   line-height: 40px;
   height: 40px;
   padding: 0px 15px;
-  background-color: #ee626b;
+  background-color: #967AA1;
   color: #fff;
   border-radius: 20px;
   font-size: 15px;
@@ -1119,7 +1121,7 @@ CTA Style
   display: inline-block;
   height: 50px;
   line-height: 50px;
-  background-color: #ee626b;
+  background-color: #967AA1;
   color: #fff;
   font-size: 15px;
   text-transform: uppercase;
@@ -1159,7 +1161,7 @@ CTA Style
   display: inline-block;
   height: 50px;
   line-height: 50px;
-  background-color: #ee626b;
+  background-color: #967AA1;
   color: #fff;
   font-size: 15px;
   text-transform: uppercase;
@@ -1191,11 +1193,10 @@ footer {
   background-repeat: no-repeat;
   background-size: cover;
   min-height: 150px;
-  border-radius: 150px 150px 0px 0px;
+  border-radius: 80px 80px 0px 0px;
 }
 
 footer p {
-  text-align: center;
   line-height: 90px;
   color: #fff;
   font-size: 16px;
@@ -1282,7 +1283,7 @@ Shop Page Style
 }
 
 .trending ul.trending-filter li a.is_active {
-  background-color: #ee626b;
+  background-color: #967AA1;
   color: #fff;
 }
 
@@ -1291,7 +1292,7 @@ Shop Page Style
 }
 
 .trending ul.trending-filter li a:hover {
-  color: #ee626b;
+  color: #967AA1;
 }
 
 .trending-box .item  {
@@ -1354,7 +1355,7 @@ Shop Page Style
   line-height: 40px;
   width: 40px;
   height: 40px;
-  background-color: #ee626b;
+  background-color: #967AA1;
   color: #fff;
   border-radius: 50%;
   right: 25px;
@@ -1398,7 +1399,7 @@ Shop Page Style
 
 .trending ul.pagination li a:hover,
 .trending ul.pagination li a.is_active {
-  background-color: #0071f8;
+  background-color: #967AA1;
   color: #fff;
 }
 
@@ -1468,7 +1469,7 @@ Single Page Style
   display: inline-block;
   height: 50px;
   line-height: 50px;
-  background-color: #ee626b;
+  background-color: #967AA1;
   color: #fff;
   font-size: 15px;
   text-transform: uppercase;
@@ -1628,22 +1629,22 @@ Contact PAge Style
 }
 
 .contact-page .right-content form button {
-  display: inline-block;
-  height: 50px;
-  line-height: 50px;
-  background-color: #ee626b;
-  color: #fff;
-  font-size: 15px;
-  text-transform: uppercase;
-  font-weight: 500;
-  padding: 0px 25px;
-  border: none;
-  border-radius: 25px;
-  transition: all .3s;
+  background: #967AA1;
+      padding: 12px 30px;
+      border-color: transparent;
+      border-radius: 25px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      border: none;
+      color: #fff;
 }
 
 .contact-page .right-content form button:hover {
-  background-color: #0071f8;
+  color: #fff;
+  border-color: #967AA1;
+      background: #967AA1;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(25,42,81,0.2);
 }
 
 /* 

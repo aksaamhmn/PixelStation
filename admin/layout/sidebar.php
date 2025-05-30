@@ -59,6 +59,12 @@
                                 <span>Dashboard</span>
                             </a>
                         </li>
+                        <li class="sidebar-item <?php echo ($currentPage == 'dataRoom.php') ? 'active' : ''; ?>">
+                            <a href="dataRoom.php" class='sidebar-link'>
+                                <i class="bi bi-house-fill"></i>
+                                <span>Kelola Room</span>
+                            </a>
+                        </li>
                         <li class="sidebar-item <?php echo ($currentPage == 'dataGame.php') ? 'active' : ''; ?>">
                             <a href="dataGame.php" class='sidebar-link'>
                                 <i class="bi bi-controller"></i>

@@ -28,7 +28,7 @@ try {
 FROM reservasi r
 JOIN room rm ON r.id_room = rm.id_room
 LEFT JOIN payments p ON r.id_payments = p.id_payments
-ORDER BY r.reservation_date DESC, r.start_time ASC;
+ORDER BY r.id_reservasi DESC;
 ");
     
     $stmt->execute();
@@ -422,6 +422,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['reject_payment'])) {
             // Handle payment status
             var paymentStatusText = paymentStatus === 'pending' ? "Menunggu Konfirmasi" :
                                    paymentStatus === 'confirmed' ? "Pembayaran Dikonfirmasi" :
+                                   paymentStatus === 'expired' ? "Pembayaran Dikonfirmasi & Selesai" :
                                    paymentStatus === 'rejected' ? "Pembayaran Ditolak" : 
                                    "Belum Dibayar";
             
@@ -433,7 +434,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['reject_payment'])) {
             // Handle proof image
             var proofImage = detailModal.querySelector('#proofImage');
             if (paymentProof) {
-                proofImage.src = '/' + paymentProof;
+                proofImage.src = '../uploads/payment_proofs/' + paymentProof;
                 proofImage.style.display = 'block';
             } else {
                 proofImage.style.display = 'none';
@@ -450,7 +451,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['reject_payment'])) {
             var proofImage = confirmModal.querySelector('#confirmProofImage');
             var paymentProof = button.getAttribute('data-payment-proof');
             if (paymentProof) {
-                proofImage.src = '/' + paymentProof;
+                proofImage.src = '../uploads/payment_proofs/' + paymentProof;
                 proofImage.style.display = 'block';
             } else {
                 proofImage.style.display = 'none';

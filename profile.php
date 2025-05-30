@@ -91,7 +91,7 @@
     rm.type_room,
     r.start_time,
     r.end_time,
-    rm.harga AS price,
+    p.amount AS price,
     rv.id_review,
     rv.review_text,
     rv.rating,
@@ -115,7 +115,7 @@ ORDER BY r.reservation_date DESC;
         
         while ($row = $result->fetch_assoc()) {
             //$now = new DateTime(); // waktu saat ini
-            $now = new DateTime("2025-05-26 07:31:00"); // waktu testing
+            $now = new DateTime("2025-05-30 19:31:00"); // waktu testing
             $endDatetime = new DateTime($row['reservation_date'] . ' ' . $row['end_time']);
 
             // Jika waktu sekarang sudah melewati waktu selesai dan status masih "Dikonfirmasi"
@@ -236,7 +236,7 @@ ORDER BY r.reservation_date DESC;
                                                 <?php endif; ?>
                                             </div>
 
-                                            <?php if ($order['payment_status'] == 'confirmed' || $order['payment_status'] == 'expired' && $order['id_review']): ?>
+                                            <?php if ($order['payment_status'] == 'expired' && $order['id_review']): ?>
                                                 <!-- Tampilkan review yang sudah ada (hanya jika pembayaran sudah dikonfirmasi) -->
                                                 <div class="mt-3 p-3 bg-light rounded">
                                                     <h6>Review Anda:</h6>
@@ -261,7 +261,7 @@ ORDER BY r.reservation_date DESC;
                                                         Edit Review
                                                     </button>
                                                 </div>
-                                            <?php elseif ($order['payment_status'] == 'confirmed' || $order['payment_status'] == 'expired' && !$order['id_review']): ?>
+                                            <?php elseif ($order['payment_status'] == 'expired' && !$order['id_review']): ?>
                                                 <!-- Tombol untuk memberi review (hanya jika pembayaran sudah dikonfirmasi) -->
                                                 <div class="d-grid mt-3">
                                                     <button class="btn btn-primary beri-rating-btn" type="button"
@@ -280,6 +280,8 @@ ORDER BY r.reservation_date DESC;
                                                         <small><i class="fas fa-info-circle"></i> Review dapat diberikan setelah pembayaran dikonfirmasi admin</small>
                                                     <?php elseif ($order['payment_status'] == 'rejected'): ?>
                                                         <small><i class="fas fa-times-circle"></i> Pembayaran ditolak. Silakan hubungi admin</small>
+                                                    <?php elseif ($order['payment_status'] == 'confirmed'): ?>
+                                                        <small><i class="fas fa-info-circle"></i> Review dapat diberikan setelah anda bermain</small>
                                                     <?php else: ?>
                                                         <small><i class="fas fa-exclamation-circle"></i> Silakan upload bukti pembayaran untuk melanjutkan</small>
                                                     <?php endif; ?>
