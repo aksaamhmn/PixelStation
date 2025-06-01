@@ -101,7 +101,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['reject_payment'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reservations - Pixel Station</title>
+    <title>Admin - Reservations</title>
+    <link rel="shortcut icon" href="../dist/assets/compiled/svg/profile.svg" type="image/x-icon">
     <link rel="stylesheet" href="../dist/assets/compiled/css/app.css">
     <link rel="stylesheet" href="../dist/assets/compiled/css/app-dark.css">
     <script src="https://kit.fontawesome.com/5f166431bc.js" crossorigin="anonymous"></script>

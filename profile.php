@@ -31,16 +31,9 @@
                 $update_stmt->bind_param("siii", $review_text, $rating, $order_id, $user_id);
                 
                 if ($update_stmt->execute()) {
-                    echo "<script>
-                        document.addEventListener('DOMContentLoaded', function() {
-                            Swal.fire({
-                                title: 'Berhasil!',
-                                text: 'Review berhasil diperbarui!',
-                                icon: 'success',
-                                confirmButtonText: 'OK'
-                            });
-                        });
-                    </script>";
+                    $_SESSION['success_message'] = 'Review berhasil diperbarui!';
+                    header("Location: " . $_SERVER['PHP_SELF']);
+                    exit();
                 } else {
                     throw new Exception("Gagal memperbarui review");
                 }
@@ -51,16 +44,9 @@
                 $insert_stmt->bind_param("iisi", $order_id, $user_id, $review_text, $rating);
                 
                 if ($insert_stmt->execute()) {
-                    echo "<script>
-                        document.addEventListener('DOMContentLoaded', function() {
-                            Swal.fire({
-                                title: 'Berhasil!',
-                                text: 'Review berhasil disimpan!',
-                                icon: 'success',
-                                confirmButtonText: 'OK'
-                            });
-                        });
-                    </script>";
+                    $_SESSION['success_message'] = 'Review berhasil disimpan!';
+                    header("Location: " . $_SERVER['PHP_SELF']);
+                    exit();
                 } else {
                     throw new Exception("Gagal menyimpan review");
                 }
@@ -68,17 +54,39 @@
             }
             $check_stmt->close();
         } catch (Exception $e) {
-            echo "<script>
-                document.addEventListener('DOMContentLoaded', function() {
-                    Swal.fire({
-                        title: 'Error!',
-                        text: 'Terjadi kesalahan: " . $e->getMessage() . "',
-                        icon: 'error',
-                        confirmButtonText: 'OK'
-                    });
-                });
-            </script>";
+            $_SESSION['error_message'] = 'Terjadi kesalahan: ' . $e->getMessage();
+            header("Location: " . $_SERVER['PHP_SELF']);
+            exit();
         }
+    }
+
+    // Display messages if they exist
+    if (isset($_SESSION['success_message'])) {
+        echo "<script>
+            document.addEventListener('DOMContentLoaded', function() {
+                Swal.fire({
+                    title: 'Berhasil!',
+                    text: '" . $_SESSION['success_message'] . "',
+                    icon: 'success',
+                    confirmButtonText: 'OK'
+                });
+            });
+        </script>";
+        unset($_SESSION['success_message']);
+    }
+
+    if (isset($_SESSION['error_message'])) {
+        echo "<script>
+            document.addEventListener('DOMContentLoaded', function() {
+                Swal.fire({
+                    title: 'Error!',
+                    text: '" . $_SESSION['error_message'] . "',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+            });
+        </script>";
+        unset($_SESSION['error_message']);
     }
 
     // Query order berdasarkan user id dengan review dan payment information
@@ -115,7 +123,7 @@ ORDER BY r.reservation_date DESC;
         
         while ($row = $result->fetch_assoc()) {
             //$now = new DateTime(); // waktu saat ini
-            $now = new DateTime("2025-05-30 19:31:00"); // waktu testing
+            $now = new DateTime("2025-05-30 19:30:00"); // waktu testing
             $endDatetime = new DateTime($row['reservation_date'] . ' ' . $row['end_time']);
 
             // Jika waktu sekarang sudah melewati waktu selesai dan status masih "Dikonfirmasi"
@@ -170,15 +178,18 @@ ORDER BY r.reservation_date DESC;
     <title>Pixel Station - Profile Page</title>
     <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/fontawesome.css">
-    <link rel="stylesheet" href="assets/css/templatemo-lugx-gaming.css">
+    <link rel="stylesheet" href="assets/css/main.css">
     <link rel="stylesheet" href="assets/css/owl.css">
     <link rel="stylesheet" href="assets/css/animate.css">
+    <link rel="stylesheet" href="assets/css/profile.css">
     <link rel="stylesheet" href="https://unpkg.com/swiper@7/swiper-bundle.min.css"/>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link rel="stylesheet" href="./css/styleIndex.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    
+
 </head>
 
 <body>
@@ -219,7 +230,7 @@ ORDER BY r.reservation_date DESC;
                                         <div class="card-body">
                                             <h5 class="card-title mb-2">
                                                 <?= htmlspecialchars($order['section_room']) ?>
-                                                <span class="badge bg-info text-dark ms-2"><?= htmlspecialchars($order['type_room']) ?></span>
+                                                <span class="badge text-white ms-2" style="background-color: #967AA1;"><?= htmlspecialchars($order['type_room']) ?></span>
                                             </h5>
                                             <p class="card-text mb-1">
                                                 <strong>Tanggal:</strong> <?= htmlspecialchars($order['reservation_date']) ?><br>
@@ -296,7 +307,7 @@ ORDER BY r.reservation_date DESC;
                     </div>
                     
                     <!-- Modal Review -->
-                    <div class="modal fade" id="reviewModal" tabindex="-1" data-bs-backdrop="static" aria-labelledby="modalReviewLabel" aria-hidden="true">
+                    <div class="modal fade" id="reviewModal" tabindex="-1" aria-labelledby="modalReviewLabel" aria-hidden="true">
                         <div class="modal-dialog modal-dialog-centered">
                             <div class="modal-content">
                                 <div class="modal-header">
@@ -335,48 +346,19 @@ ORDER BY r.reservation_date DESC;
                             </div>
                         </div>
                     </div>
-                    
-                    <style>
-                        .star-rating {
-                            direction: rtl;
-                            display: inline-flex;
-                            font-size: 2rem;
-                            gap: 0.2em;
-                        }
-                        .star-rating input[type="radio"] {
-                            display: none;
-                        }
-                        .star-rating label {
-                            color: #ddd;
-                            cursor: pointer;
-                            transition: color 0.2s;
-                            position: relative;
-                        }
-                        .star-rating label:before {
-                            content: "\f005";
-                            font-family: "Font Awesome 5 Free";
-                            font-weight: 900;
-                            position: relative;
-                            display: inline-block;
-                        }
-                        .star-rating input[type="radio"]:checked ~ label:before,
-                        .star-rating label:hover:before,
-                        .star-rating label:hover ~ label:before {
-                            color: #ffc107;
-                        }
-                        
-                        .bg-light {
-                            background-color: #f8f9fa!important;
-                        }
-                        
-                        .badge {
-                            font-size: 0.75em;
-                        }
-                    </style>
+                    <!-- End Modal Review -->
                     
                     <script>
                         document.addEventListener('DOMContentLoaded', function() {
+                            // Reset form state when modal is hidden
                             var reviewModal = document.getElementById('reviewModal');
+                            reviewModal.addEventListener('hidden.bs.modal', function () {
+                                document.getElementById('submitReviewBtn').innerHTML = 'Submit Review';
+                                document.getElementById('submitReviewBtn').disabled = false;
+                                document.getElementById('reviewForm').reset();
+                            });
+
+                            // Modal Event Handler
                             reviewModal.addEventListener('show.bs.modal', function(event) {
                                 var button = event.relatedTarget;
                                 var orderId = button.getAttribute('data-order');
@@ -410,6 +392,7 @@ ORDER BY r.reservation_date DESC;
                                 }
                             });
 
+                            // Form Submit Handler
                             var reviewForm = document.getElementById('reviewForm');
                             reviewForm.addEventListener('submit', function(event) {
                                 var ratingChecked = document.querySelector('input[name="rating"]:checked');
@@ -421,7 +404,11 @@ ORDER BY r.reservation_date DESC;
                                         title: 'Peringatan!',
                                         text: 'Silakan pilih rating terlebih dahulu.',
                                         icon: 'warning',
-                                        confirmButtonText: 'OK'
+                                        confirmButtonText: 'OK',
+                                        customClass: {
+                                            popup: 'swal-popup-centered',
+                                            icon: 'swal-icon-centered'
+                                        }
                                     });
                                     return false;
                                 }
@@ -432,7 +419,11 @@ ORDER BY r.reservation_date DESC;
                                         title: 'Peringatan!',
                                         text: 'Silakan tulis review terlebih dahulu.',
                                         icon: 'warning',
-                                        confirmButtonText: 'OK'
+                                        confirmButtonText: 'OK',
+                                        customClass: {
+                                            popup: 'swal-popup-centered',
+                                            icon: 'swal-icon-centered'
+                                        }
                                     });
                                     return false;
                                 }

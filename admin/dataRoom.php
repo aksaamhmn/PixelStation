@@ -47,8 +47,8 @@ if (isset($_SESSION['alert'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pixel Station Admin</title>
-    <link rel="shortcut icon" href="../dist/assets/compiled/svg/favicon.svg" type="image/x-icon">
+    <title>Admin - Kelola Room</title>
+    <link rel="shortcut icon" href="../dist/assets/compiled/svg/profile.svg" type="image/x-icon">
     <link rel="stylesheet" href="../dist/assets/compiled/css/app.css">
     <link rel="stylesheet" href="../dist/assets/compiled/css/app-dark.css">
     <script src="https://kit.fontawesome.com/5f166431bc.js" crossorigin="anonymous"></script>
@@ -143,7 +143,7 @@ if (isset($_SESSION['alert'])) {
                                         <table class="table table-striped mb-0">
                                             <thead>
                                                 <tr>
-                                                    <th>ID</th>
+                                                    <th>NO</th>
                                                     <th>ROOM SECTION</th>
                                                     <th>ROOM TYPE</th>
                                                     <th>HARGA</th>
@@ -154,9 +154,11 @@ if (isset($_SESSION['alert'])) {
                                             </thead>
                                             <tbody>
                                             <?php if ($rooms->num_rows > 0): ?>
-                                                <?php while ($row = $rooms->fetch_assoc()) { ?>
+                                                <?php 
+                                                $no = 1;
+                                                while ($row = $rooms->fetch_assoc()) { ?>
                                                     <tr>
-                                                        <td><?php echo $row['id_room']; ?></td>
+                                                        <td><?php echo $no++; ?></td>
                                                         <td><?php echo $row['section_room']; ?></td>
                                                         <td><?php echo ucfirst($row['type_room']); ?></td>
                                                         <td>Rp <?php echo number_format($row['harga'], 0, ',', '.'); ?></td>

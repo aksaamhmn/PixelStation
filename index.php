@@ -70,8 +70,9 @@ function displayStars($rating) {
 
   <!-- Additional CSS Files -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <link rel="stylesheet" href="assets/css/templatemo-lugx-gaming.css">
+  <link rel="stylesheet" href="assets/css/main.css">
   <link rel="stylesheet" href="assets/css/owl.css">
+  <link rel="stylesheet" href="assets/css/utama.css">
   <link rel="stylesheet" href="assets/css/animate.css">
   <link rel="stylesheet" href="https://unpkg.com/swiper@7/swiper-bundle.min.css" />
 </head>
@@ -103,23 +104,7 @@ function displayStars($rating) {
     </div>
   </div>
 
-  <style>
-    .reserve-btn {
-      background: #967AA1;
-      padding: 12px 30px;
-      border-color: transparent;
-      border-radius: 25px;
-      font-weight: 500;
-      transition: all 0.3s ease;
-    }
 
-    .reserve-btn:hover {
-      border-color: #fff;
-      background: #192A51;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 15px rgba(25,42,81,0.2);
-    }
-  </style>
 
   <div class="features">
     <div class="container">
@@ -223,14 +208,14 @@ function displayStars($rating) {
           <div class="swiper-wrapper">
             <!-- REGULAR SPOT -->
             <div class="swiper-slide position-relative">
-              <img src="assets/images/room.png" alt="Regular Spot" class="w-100 rounded-4 shadow" style="object-fit:cover; height:400px;">
+              <img src="assets/images/regulerRoom.jpeg" alt="Regular Spot" class="w-100 rounded-4 shadow" style="object-fit:cover; height:400px;">
               <button type="button" class="btn btn-info-custom position-absolute bottom-0 start-50 translate-middle-x mb-3" data-bs-toggle="modal" data-bs-target="#modalRegular">
               Info
               </button>
             </div>
             <!-- VIP SPOT -->
             <div class="swiper-slide position-relative">
-              <img src="assets/images/room.png" alt="VIP Spot" class="w-100 rounded-4 shadow" style="object-fit:cover; height:400px;">
+              <img src="assets/images/vipRoom.jpeg" alt="VIP Spot" class="w-100 rounded-4 shadow" style="object-fit:cover; height:400px;">
               <button type="button" class="btn btn-info-custom position-absolute bottom-0 start-50 translate-middle-x mb-3" data-bs-toggle="modal" data-bs-target="#modalVIP">
               Info
               </button>
@@ -254,14 +239,14 @@ function displayStars($rating) {
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content border-0 shadow-sm" style="border-radius: 18px;">
         <div class="modal-body p-4 text-center">
-          <h5 class="fw-bold mb-2" id="modalRegularLabel">REGULAR SPOT</h5>
-          <div class="mb-3 text-muted small">Tempat nyaman untuk bermain bersama teman dengan harga terjangkau dan fasilitas standar.</div>
+          <h5 class="fw-bold mb-2" id="modalRegularLabel">REGULAR PS4</h5>
+          <div class="mb-3 text-muted small">Paket standar PlayStation 5 dengan koleksi game lengkap untuk main bersama teman.</div>
           <ul class="list-unstyled text-start mb-3" style="font-size: 0.97rem;">
-            <li><strong>Harga:</strong> Rp 10.000/jam</li>
-            <li><strong>Fasilitas:</strong> PC Standar, WiFi, Snack Ringan</li>
-            <li><strong>Kapasitas:</strong> 1-4 orang</li>
+            <li><strong>Harga:</strong> Rp 13.000/jam</li>
+            <li><strong>Fasilitas:</strong> PS5 Slim, 2 Stick Controller, Game Digital</li>
+            <li><strong>Kapasitas:</strong> 1-2 pemain</li>
           </ul>
-          <span class="badge px-3 py-1 rounded-pill" style="background: #192A51; color: #fff; font-size: 13px;">Popular</span>
+          <span class="badge px-3 py-1 rounded-pill" style="background: #192A51; color: #fff; font-size: 13px;">Most Popular</span>
           <button type="button" class="btn-close position-absolute top-0 end-0 m-3" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
       </div>
@@ -271,14 +256,14 @@ function displayStars($rating) {
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content border-0 shadow-sm" style="border-radius: 18px;">
         <div class="modal-body p-4 text-center">
-          <h5 class="fw-bold mb-2" id="modalVIPLabel">VIP SPOT</h5>
-          <div class="mb-3 text-muted small">Nikmati fasilitas premium, kursi lebih nyaman, dan suasana eksklusif untuk pengalaman bermain terbaik.</div>
+          <h5 class="fw-bold mb-2" id="modalVIPLabel">PS5 PREMIUM</h5>
+          <div class="mb-3 text-muted small">Nikmati gaming next-gen dengan PlayStation 5 dan TV 4K untuk pengalaman terbaik.</div>
           <ul class="list-unstyled text-start mb-3" style="font-size: 0.97rem;">
-            <li><strong>Harga:</strong> Rp 25.000/jam</li>
-            <li><strong>Fasilitas:</strong> PC High-End, Kursi Gaming, Minuman Gratis</li>
-            <li><strong>Kapasitas:</strong> 1-6 orang</li>
+            <li><strong>Harga:</strong> Rp 15.000/jam</li>
+            <li><strong>Fasilitas:</strong> PS5, DualSense Controller, TV 4K, Game PS5</li>
+            <li><strong>Kapasitas:</strong> 2-3 pemain</li>
           </ul>
-          <span class="badge px-3 py-1 rounded-pill" style="background: #2d4fa2; color: #fff; font-size: 13px;">Best Value</span>
+          <span class="badge px-3 py-1 rounded-pill" style="background: #2d4fa2; color: #fff; font-size: 13px;">Premium</span>
           <button type="button" class="btn-close position-absolute top-0 end-0 m-3" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
       </div>
@@ -288,54 +273,20 @@ function displayStars($rating) {
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content border-0 shadow-sm" style="border-radius: 18px;">
         <div class="modal-body p-4 text-center">
-          <h5 class="fw-bold mb-2" id="modalPrivateLabel">PRIVATE SPOT</h5>
-          <div class="mb-3 text-muted small">Ruang privat untuk grup atau event spesial, dengan layanan eksklusif dan privasi penuh.</div>
+          <h5 class="fw-bold mb-2" id="modalPrivateLabel">PRIVATE GAMING ROOM</h5>
+          <div class="mb-3 text-muted small">Ruang privat dengan PlayStation dan fasilitas premium untuk acara gaming atau gathering.</div>
           <ul class="list-unstyled text-start mb-3" style="font-size: 0.97rem;">
-            <li><strong>Harga:</strong> Rp 50.000/jam</li>
-            <li><strong>Fasilitas:</strong> Ruang Tertutup, Konsol & PC, Snack & Minuman, Layanan Khusus</li>
-            <li><strong>Kapasitas:</strong> 2-10 orang</li>
+            <li><strong>Harga:</strong> Rp 20.000/jam</li>
+            <li><strong>Fasilitas:</strong> PS4/PS5, 4 Controller, Smart TV 55", Sofa, Snack & Minuman</li>
+            <li><strong>Kapasitas:</strong> 4-6 orang</li>
           </ul>
-          <span class="badge px-3 py-1 rounded-pill" style="background: #2d4fa2; color: #fff; font-size: 13px;">Luxury</span>
+          <span class="badge px-3 py-1 rounded-pill" style="background: #2d4fa2; color: #fff; font-size: 13px;">Party Room</span>
           <button type="button" class="btn-close position-absolute top-0 end-0 m-3" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
       </div>
     </div>
   </div>
 
-  <style>
-    .btn-info-custom {
-      background: #192A51;
-      color: #fff;
-      border: none;
-      border-radius: 22px;
-      font-weight: 500;
-      font-size: 1rem;
-      padding: 8px 28px;
-      transition: background 0.2s;
-      box-shadow: 0 2px 8px rgba(25,42,81,0.08);
-    }
-    .btn-info-custom:hover, .btn-info-custom:focus {
-      background: #2d4fa2;
-      color: #fff;
-    }
-    .modal-content {
-      background: #fff;
-      border-radius: 18px;
-    }
-    .modal-body {
-      position: relative;
-    }
-    .modal .btn-close {
-      background: none;
-      border: none;
-      font-size: 1.2rem;
-      opacity: 0.7;
-      transition: opacity 0.2s;
-    }
-    .modal .btn-close:hover {
-      opacity: 1;
-    }
-  </style>
   <script>
     document.addEventListener("DOMContentLoaded", function() {
       var roomSwiper = new Swiper(".roomPreviewSwiper", {
@@ -465,46 +416,7 @@ function displayStars($rating) {
       <span class="visually-hidden">Next</span>
     </button>
   </div>
-  <style>
-    @media (max-width: 991.98px) {
-      #carouselExampleControls .carousel-control-prev,
-      #carouselExampleControls .carousel-control-next {
-        left: 0 !important;
-        right: 0 !important;
-        top: auto !important;
-        bottom: -56px !important;
-        transform: none !important;
-        margin: 0 10px;
-        position: relative !important;
-        display: inline-block;
-      }
-      #carouselExampleControls .carousel-control-prev {
-        float: left;
-      }
-      #carouselExampleControls .carousel-control-next {
-        float: right;
-      }
-    }
-    .custom-btn-bg {
-      background-color: #192A51 !important;
-      border-radius: 50%;
-      background-size: 60% 60%;
-      background-position: center;
-      background-repeat: no-repeat;
-      width: 48px;
-      height: 48px;
-      box-shadow: 0 2px 8px rgba(25,42,81,0.15);
-      transition: background 0.2s;
-    }
-    .custom-carousel-btn:focus .custom-btn-bg,
-    .custom-carousel-btn:hover .custom-btn-bg {
-      background-color: #2d4fa2 !important;
-    }
-    .carousel-control-prev-icon.custom-btn-bg,
-    .carousel-control-next-icon.custom-btn-bg {
-      filter: invert(1) brightness(5);
-    }
-  </style>
+  
 
   
 

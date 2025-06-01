@@ -65,21 +65,12 @@ $games = $stmt->get_result();
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <title>Pixel Station - Gamelist Page</title>
   <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-  <style>
-    /* SECTION: Custom Styles */
-    .trending-box { transition: opacity 0.3s ease-in-out; }
-    .button-filter form button {
-    display: inline-block; text-align: center; font-size: 15px; text-transform: uppercase;
-    font-weight: 600; color: #1e1e1e; background-color: #eee; padding: 8px 20px;
-    border-radius: 25px; border: none; margin: 5px; transition: all 0.3s; cursor: pointer;
-    }
-    .button-filter form button.active { background-color: #967AA1; color: #fff; }
-    .button-filter form button.active:hover { color: #fff; }
-    .button-filter form button:hover { color: #fff; background-color: #967AA1; }
-  </style>
+
+  
   <link rel="stylesheet" href="assets/css/fontawesome.css">
-  <link rel="stylesheet" href="assets/css/templatemo-lugx-gaming.css">
+  <link rel="stylesheet" href="assets/css/main.css">
   <link rel="stylesheet" href="assets/css/owl.css">
+    <link rel="stylesheet" href="assets/css/gamelist.css">
   <link rel="stylesheet" href="assets/css/animate.css">
   <link rel="stylesheet" href="https://unpkg.com/swiper@7/swiper-bundle.min.css"/>
 </head>

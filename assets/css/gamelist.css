@@ -1,0 +1,10 @@
+    /* SECTION: Custom Styles */
+    .trending-box { transition: opacity 0.3s ease-in-out; }
+    .button-filter form button {
+    display: inline-block; text-align: center; font-size: 15px; text-transform: uppercase;
+    font-weight: 600; color: #1e1e1e; background-color: #eee; padding: 8px 20px;
+    border-radius: 25px; border: none; margin: 5px; transition: all 0.3s; cursor: pointer;
+    }
+    .button-filter form button.active { background-color: #967AA1; color: #fff; }
+    .button-filter form button.active:hover { color: #fff; }
+    .button-filter form button:hover { color: #fff; background-color: #967AA1; }

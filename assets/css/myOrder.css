@@ -1,0 +1,14 @@
+        body { background: #232946; }
+        .bg-dark { background: #232946 !important; }
+        .bg-secondary { background: #393e6e !important; }
+        .text-white { color: #fff !important; }
+        .linear-gradient { background-image: linear-gradient(#50b2fc, #354265); }
+        .rounded-circle { border-radius: 50% !important; }
+        .user-profile-tab .nav-item .nav-link.active {
+            color: #50b2fc;
+            border-bottom: 2px solid #50b2fc;
+        }
+        .badge.text-bg-secondary {
+            background: #50b2fc !important;
+            color: #fff;
+        }

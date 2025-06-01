@@ -62,6 +62,7 @@ $current_page = basename($_SERVER['PHP_SELF'], ".php");
       
        
     </style>
+     <link rel="shortcut icon" href="../dist/assets/compiled/svg/PIXELSTATION_icon.svg" type="image/x-icon">
     <!-- Make sure Bootstrap CSS is included in your <head> (add if missing) -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
@@ -77,7 +78,7 @@ $current_page = basename($_SERVER['PHP_SELF'], ".php");
                 <div class="col-12">
                     <nav class="main-nav">
                         <!-- Logo -->
-                        <a href="login.php" class="logo">
+                        <a href="../index.php" class="logo">
                             <img src="/assets/images/PIXEL STATION.gif" alt="" style="width: 158px; margin-top: -25px;">
                         </a>
                         <!-- Menu -->
@@ -104,18 +105,20 @@ $current_page = basename($_SERVER['PHP_SELF'], ".php");
                                             <a class="nav-link p-0 mb-0 d-flex align-items-center" href="#" id="profileDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="height: 100%;">
                                                 <img src="../assets/images/profile.png" alt="Profile" width="45" height="45" class="rounded-circle">
                                             </a>
-                                            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-white text-small shadow p-2" aria-labelledby="profileDropdown" id="profileDropdownMenu">
-                                                <li class="d-flex flex-row align-items-center">
-                                                    <div class="col m-2">
-                                                        <img src="../assets/images/profile.png" alt="mdo" width="55" height="55" class="rounded-circle">
-                                                    </div>
-                                                    <div class="col m-2">
-                                                        <h5 class="text-dark mb-0">
-                                                            <?php echo isset($_SESSION['nama']) ? htmlspecialchars($_SESSION['nama']) : 'Nama'; ?>
-                                                        </h5>
-                                                        <p class="text-dark mb-0">
-                                                            <?php echo isset($_SESSION['username']) ? htmlspecialchars($_SESSION['username']) : 'Username'; ?>
-                                                        </p>
+                                            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-white text-small shadow p-2" aria-labelledby="profileDropdown" id="profileDropdownMenu" style="min-width: 280px;">
+                                                <li>
+                                                    <div class="d-flex align-items-center px-2">
+                                                        <div class="flex-shrink-0">
+                                                            <img src="../assets/images/profile.png" alt="mdo" width="55" height="55" class="rounded-circle">
+                                                        </div>
+                                                        <div class="flex-grow-1 ms-3">
+                                                            <h5 class="text-dark mb-0 text-truncate" style="max-width: 180px;">
+                                                                <?php echo isset($_SESSION['nama']) ? htmlspecialchars($_SESSION['nama']) : 'Nama'; ?>
+                                                            </h5>
+                                                            <p class="text-dark mb-0 text-truncate" style="max-width: 180px;">
+                                                                <?php echo isset($_SESSION['username']) ? htmlspecialchars($_SESSION['username']) : 'Username'; ?>
+                                                            </p>
+                                                        </div>
                                                     </div>
                                                 </li>
                                                 <li>

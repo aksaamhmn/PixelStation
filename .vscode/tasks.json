@@ -1,0 +1,13 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "npm",
+			"script": "bundlesize",
+			"path": "dist/assets/extensions/choices.js",
+			"problemMatcher": [],
+			"label": "npm: bundlesize - dist/assets/extensions/choices.js",
+			"detail": "bundlesize"
+		}
+	]
+}

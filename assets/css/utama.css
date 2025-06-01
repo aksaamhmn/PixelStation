@@ -1,0 +1,95 @@
+ 
+    .reserve-btn {
+      background: #967AA1;
+      padding: 12px 30px;
+      border-color: transparent;
+      border-radius: 25px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+
+    .reserve-btn:hover {
+      border-color: #fff;
+      background: #192A51;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(25,42,81,0.2);
+    }
+    .btn-info-custom {
+      background: #192A51;
+      color: #fff;
+      border: none;
+      border-radius: 22px;
+      font-weight: 500;
+      font-size: 1rem;
+      padding: 8px 28px;
+      transition: background 0.2s;
+      box-shadow: 0 2px 8px rgba(25,42,81,0.08);
+    }
+    .btn-info-custom:hover, .btn-info-custom:focus {
+      background: #2d4fa2;
+      color: #fff;
+    }
+    .modal-content {
+      background: #fff;
+      border-radius: 18px;
+    }
+    .modal-body {
+      position: relative;
+    }
+    .modal .btn-close {
+      background: none;
+      border: none;
+      font-size: 1.2rem;
+      opacity: 0.7;
+      transition: opacity 0.2s;
+    }
+    .modal .btn-close:hover {
+      opacity: 1;
+    }
+    @media (max-width: 991.98px) {
+      #carouselExampleControls .carousel-control-prev,
+      #carouselExampleControls .carousel-control-next {
+        left: 0 !important;
+        right: 0 !important;
+        top: auto !important;
+        bottom: -56px !important;
+        transform: none !important;
+        margin: 0 10px;
+        position: relative !important;
+        display: inline-block;
+      }
+      #carouselExampleControls .carousel-control-prev {
+        float: left;
+      }
+      #carouselExampleControls .carousel-control-next {
+        float: right;
+      }
+    }
+    .custom-btn-bg {
+      background-color: #192A51 !important;
+      border-radius: 50%;
+      background-size: 60% 60%;
+      background-position: center;
+      background-repeat: no-repeat;
+      width: 48px;
+      height: 48px;
+      box-shadow: 0 2px 8px rgba(25,42,81,0.15);
+      transition: background 0.2s;
+    }
+    .custom-carousel-btn:focus .custom-btn-bg,
+    .custom-carousel-btn:hover .custom-btn-bg {
+      background-color: #2d4fa2 !important;
+    }
+    .carousel-control-prev-icon.custom-btn-bg,
+    .carousel-control-next-icon.custom-btn-bg {
+      filter: invert(1) brightness(5);
+    }
+    .swiper-pagination-bullet {
+      margin: 0 12px !important;
+      background-color: #192A51;
+    }
+    .swiper-pagination {
+      position: relative;
+      z-index: 10;
+      margin-top: 24px;
+    }

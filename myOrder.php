@@ -54,22 +54,7 @@ $rating = $counts['Review'] > 0 ? $counts['Rating'] / $counts['Review'] : 0;
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://kit.fontawesome.com/5f166431bc.js" crossorigin="anonymous"></script>
-    <style>
-        body { background: #232946; }
-        .bg-dark { background: #232946 !important; }
-        .bg-secondary { background: #393e6e !important; }
-        .text-white { color: #fff !important; }
-        .linear-gradient { background-image: linear-gradient(#50b2fc, #354265); }
-        .rounded-circle { border-radius: 50% !important; }
-        .user-profile-tab .nav-item .nav-link.active {
-            color: #50b2fc;
-            border-bottom: 2px solid #50b2fc;
-        }
-        .badge.text-bg-secondary {
-            background: #50b2fc !important;
-            color: #fff;
-        }
-    </style>
+    <link rel="stylesheet" href="assets/css/myOrder.css">
 </head>
 <body>
 <div class="container bg-dark p-0 border rounded mt-4">
