@@ -48,8 +48,8 @@ if (isset($_SESSION['alert'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pixel Station Admin</title>
-    <link rel="shortcut icon" href="../dist/assets/compiled/svg/favicon.svg" type="image/x-icon">
+    <title>Admin - Kelola Game</title>
+    <link rel="shortcut icon" href="../dist/assets/compiled/svg/profile.svg" type="image/x-icon">
     <link rel="stylesheet" href="../dist/assets/compiled/css/app.css">
     <link rel="stylesheet" href="../dist/assets/compiled/css/app-dark.css">
     <script src="https://kit.fontawesome.com/5f166431bc.js" crossorigin="anonymous"></script>
@@ -169,7 +169,7 @@ if (isset($_SESSION['alert'])) {
                                         <table class="table table-striped mb-0">
                                             <thead>
                                                 <tr>
-                                                    <th>ID</th>
+                                                    <th>NO</th>
                                                     <th>NAMA GAME</th>
                                                     <th>TAHUN RILIS</th>
                                                     <th>KATEGORI</th>
@@ -180,9 +180,11 @@ if (isset($_SESSION['alert'])) {
                                             </thead>
                                             <tbody>
                                             <?php if ($games->num_rows > 0): ?>
-                                                <?php while ($row = $games->fetch_assoc()) { ?>
+                                                <?php 
+                                                $no = 1;
+                                                while ($row = $games->fetch_assoc()) { ?>
                                                     <tr>
-                                                        <td><?php echo $row['id_game']; ?></td>
+                                                        <td><?php echo $no++; ?></td>
                                                         <td><?php echo $row['nama']; ?></td>
                                                         <td><?php echo $row['tahun_rilis']; ?></td>
                                                         <td><?php echo $row['kategori']; ?></td>

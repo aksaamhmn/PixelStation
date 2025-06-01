@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: May 30, 2025 at 08:22 AM
+-- Generation Time: May 31, 2025 at 09:35 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -60,15 +60,26 @@ CREATE TABLE `games` (
 --
 
 INSERT INTO `games` (`id_game`, `nama`, `tahun_rilis`, `kategori`, `mode_game`, `gambar`) VALUES
-(1, 'Genshin Impact', '2010', 'RPG', 'Multi Player', 'game_6835c51c34d888.85296515.png'),
-(2, 'Into Will', '2020', 'Strategy', 'Multi Player', 'game_68299c0a223fc8.32239642.jpg'),
-(3, 'It Takes Two', '2021', 'Music/Rhythm', 'Single Player', 'game_6829a0bf29ed62.68198536.jpg'),
-(4, 'Kaisen', '2000', 'Fighting', 'Single Player', 'game_6829a0d6d54670.52049804.jpg'),
-(5, 'Citilazation', '2013', 'Sports', 'Multi Player', 'game_6829a5d6ed0420.67478389.jpg'),
-(6, 'Horizon', '2020', 'Fighting', 'Single Player', 'game_6829a5ecae41e3.79371909.jpg'),
-(7, 'Valhala', '2013', 'Stealth', 'Single Player', 'game_6829a60c4aa580.35418919.jpg'),
-(8, 'Gta VI', '2017', 'Strategy', 'Single Player', 'game_6829a62454b317.82657021.jpg'),
-(9, 'Emots111', '2014', 'Strategy', 'Single Player', 'game_6829a637736e57.68133811.jpg');
+(1, 'Sleeping Dogs', '2012', 'Open World', 'Single Player', 'game_6839a0e04fb039.64977600.jpg'),
+(2, 'Tomb Raider', '2014', 'Adventure', 'Single Player', 'game_6839a0fc2f9924.05539523.jpg'),
+(3, 'Watch Dogs: Legion', '2020', 'Action', 'Multi Player', 'game_6839a1150f1bd5.47666409.jpg'),
+(4, 'Batman: Arkham City', '2011', 'Adventure', 'Single Player', 'game_6839a12c2171b0.28511285.jpg'),
+(5, 'Rise of the Tomb Raider', '2015', 'Action', 'Single Player', 'game_6839a153d82a97.65666616.jpg'),
+(6, 'Gotham Knights', '2022', 'RPG', 'Multi Player', 'game_6839a17ad403b8.90111892.jpg'),
+(7, 'Pokémon Legends: Arceus', '2022', 'RPG', 'Single Player', 'game_6839a199eb6f55.64708709.jpg'),
+(8, 'Hitman (2016)', '2016', 'Stealth', 'Single Player', 'game_6839a1aee2fb72.98745126.jpg'),
+(9, 'The Walking Dead', '2012', 'Visual Novel', 'Single Player', 'game_6839a1c3afa9b1.07777842.jpg'),
+(10, 'Watch Dogs 2', '2016', 'Open World', 'Multi Player', 'game_6839a1d8707375.57045221.jpg'),
+(11, 'Mirror\'s Edge Catalyst', '2016', 'Platformer', 'Single Player', 'game_6839a1f244c442.33818199.jpg'),
+(12, 'Death Stranding', '2019', 'Adventure', 'Single Player', 'game_6839a2033cf234.50060059.jpg'),
+(13, 'Marvel\'s Guardians', '2021', 'Adventure', 'Multi Player', 'game_6839a21829d809.58887107.jpg'),
+(14, 'Pokémon Omega Ruby', '2014', 'RPG', 'Single Player', 'game_6839a22f34edf6.61369132.jpg'),
+(16, 'Pokémon Scarlet', '2022', 'RPG', 'Multi Player', 'game_6839a25f26daf9.70882365.jpg'),
+(17, 'Pokémon HeartGold', '2009', 'RPG', 'Multi Player', 'game_6839a274e822b6.08950372.jpg'),
+(18, 'Cyberpunk 2077', '2020', 'Action', 'Single Player', 'game_6839a28be91199.70124082.jpg'),
+(19, 'Paper Mario', '2020', 'Adventure', 'Single Player', 'game_6839a2a9de7360.05116575.jpg'),
+(20, 'Assassin\'s Creed', '2007', 'Stealth', 'Single Player', 'game_6839a2c1820093.91069019.jpg'),
+(21, 'Grand Theft Auto V', '2013', 'Adventure', 'Multi Player', 'game_6839a2d6c344f0.51821553.jpg');
 
 -- --------------------------------------------------------
 
@@ -91,12 +102,14 @@ CREATE TABLE `payments` (
 --
 
 INSERT INTO `payments` (`id_payments`, `amount`, `payment_method`, `payment_proof`, `payment_status`, `payment_date`, `created_at`) VALUES
-(39, 39000.00, 'BCA', 'payment_1748583325.png', 'rejected', '2025-05-30 12:35:25', '2025-05-30 05:35:25'),
-(40, 52000.00, 'BRI', 'payment_1748583377.png', 'expired', '2025-05-30 12:36:17', '2025-05-30 05:36:17'),
-(41, 39000.00, 'BCA', 'payment_1748583823.png', 'pending', '2025-05-30 12:43:43', '2025-05-30 05:43:43'),
-(42, 15000.00, 'BCA', 'payment_1748584387.png', 'expired', '2025-05-30 12:53:07', '2025-05-30 05:53:07'),
-(43, 13000.00, 'BCA', 'payment_1748584533.png', 'expired', '2025-05-30 12:55:33', '2025-05-30 05:55:33'),
-(44, 13000.00, 'BCA', 'payment_1748584609.png', 'expired', '2025-05-30 12:56:49', '2025-05-30 05:56:49');
+(1, 52000.00, 'BRI', 'payment_1748616315.png', 'rejected', '2025-05-30 21:45:15', '2025-05-30 14:45:15'),
+(2, 26000.00, 'GoPay', 'payment_1748617342.png', 'expired', '2025-05-30 22:02:22', '2025-05-30 15:02:22'),
+(3, 20000.00, 'BCA', 'payment_1748618664.png', 'pending', '2025-05-30 22:24:24', '2025-05-30 15:24:24'),
+(4, 52000.00, 'BCA', 'payment_1748626127.png', 'pending', '2025-05-31 00:28:47', '2025-05-30 17:28:47'),
+(5, 78000.00, 'BCA', 'payment_1748626194.png', 'pending', '2025-05-31 00:29:54', '2025-05-30 17:29:54'),
+(6, 13000.00, 'BRI', 'payment_1748626220.jpeg', 'pending', '2025-05-31 00:30:20', '2025-05-30 17:30:20'),
+(7, 26000.00, 'BRI', 'payment_1748674563.jpeg', 'pending', '2025-05-31 13:56:03', '2025-05-31 06:56:03'),
+(8, 75000.00, 'BCA', 'payment_1748675792.png', 'pending', '2025-05-31 14:16:32', '2025-05-31 07:16:32');
 
 -- --------------------------------------------------------
 
@@ -122,12 +135,14 @@ CREATE TABLE `reservasi` (
 --
 
 INSERT INTO `reservasi` (`id_reservasi`, `id_room`, `id_user`, `id_payments`, `nama`, `username`, `telp`, `reservation_date`, `start_time`, `end_time`) VALUES
-(39, 2, 1, 39, 'Aqsha Muhaimin', 'aksa.jr', '+6282177889149', '2025-05-31', '08:00:00', '11:00:00'),
-(40, 2, 1, 40, 'Aqsha Muhaimin', 'aksa.jr', '+62', '2025-05-31', '11:45:00', '15:45:00'),
-(41, 2, 3, 41, 'haris', 'haris.nst', '+62', '2025-05-31', '08:00:00', '11:00:00'),
-(42, 7, 1, 42, 'Aqsha Muhaimin', 'aksa.jr', '+62', '2025-05-31', '08:00:00', '09:00:00'),
-(43, 3, 1, 43, 'Aqsha Muhaimin', 'aksa.jr', '+62', '2025-05-30', '08:00:00', '09:00:00'),
-(44, 4, 1, 44, 'Aqsha Muhaimin', 'aksa.jr', '+62', '2025-05-30', '08:00:00', '09:00:00');
+(1, 4, 1, 1, 'Aqsha Muhaimin', 'aksa.jr', '+6282177889149', '2025-05-31', '08:00:00', '12:00:00'),
+(2, 4, 3, 2, 'haris', 'haris.nst', '+62123456789', '2025-05-31', '12:15:00', '14:15:00'),
+(3, 9, 3, 3, 'haris', 'haris.nst', '+62123', '2025-06-03', '08:00:00', '09:00:00'),
+(4, 2, 3, 4, 'haris', 'haris.nst', '+62123', '2025-06-02', '08:00:00', '12:00:00'),
+(5, 2, 3, 5, 'haris', 'haris.nst', '+62123', '2025-06-03', '08:00:00', '14:00:00'),
+(6, 2, 3, 6, 'haris', 'haris.nst', '+62', '2025-06-03', '14:15:00', '15:15:00'),
+(7, 5, 1, 7, 'Aqsha Muhaimin', 'aksa.jr', '+62123', '2025-05-31', '08:00:00', '10:00:00'),
+(8, 7, 12, 8, 'ibay', 'ibay', '+62123', '2025-06-01', '08:00:00', '13:00:00');
 
 -- --------------------------------------------------------
 
@@ -149,8 +164,7 @@ CREATE TABLE `review` (
 --
 
 INSERT INTO `review` (`id_review`, `id_reservasi`, `id_user`, `review_text`, `rating`, `created_at`) VALUES
-(6, 40, 1, 'benullll', 3, '2025-05-30 06:15:50'),
-(7, 44, 1, 'jelek', 1, '2025-05-30 06:03:10');
+(1, 2, 3, 'tempatnya jelek, tapi untung websitenya bagus', 4, '2025-05-30 15:19:01');
 
 -- --------------------------------------------------------
 
@@ -172,15 +186,15 @@ CREATE TABLE `room` (
 --
 
 INSERT INTO `room` (`id_room`, `section_room`, `type_room`, `harga`, `keterangan`, `gambar`) VALUES
-(1, 'reguler 1', 'reguler', 13000, '', 'room.png'),
-(2, 'reguler 2', 'reguler', 13000, '', 'room.png'),
-(3, 'reguler 3', 'reguler', 13000, '', 'room.png'),
-(4, 'reguler 4', 'reguler', 13000, '', 'room.png'),
-(5, 'reguler 5', 'reguler', 13000, '', 'room.png'),
-(6, 'vip 1', 'vip', 15000, '', 'room.png'),
-(7, 'vip 2', 'vip', 15000, '', 'room.png'),
-(8, 'vip 3', 'vip', 15000, 'TIDAK BOLEH MEROKOK TIDAK BOLEH MEROKOK ', 'room.png'),
-(9, 'private 1', 'private', 20000, '', 'room.png');
+(1, 'reguler 1', 'reguler', 13000, 'Paket standar PlayStation 5 dengan koleksi game digital lengkap yang cocok untuk bermain bersama teman. Ruangan ini dilengkapi dengan PS5 Slim, dua stick controller, dan berbagai game digital. Dapat digunakan oleh 1–2 pemain dengan tarif sewa Rp 13.000 per jam.', 'room_6839a4a21ef8a1.56912667.jpeg'),
+(2, 'reguler 2', 'reguler', 13000, 'Paket standar PlayStation 5 dengan koleksi game digital lengkap yang cocok untuk bermain bersama teman. Ruangan ini dilengkapi dengan PS5 Slim, dua stick controller, dan berbagai game digital. Dapat digunakan oleh 1–2 pemain dengan tarif sewa Rp 13.000 per jam.', 'room_6839a4b28a3886.21484065.jpeg'),
+(3, 'reguler 3', 'reguler', 13000, 'Paket standar PlayStation 5 dengan koleksi game digital lengkap yang cocok untuk bermain bersama teman. Ruangan ini dilengkapi dengan PS5 Slim, dua stick controller, dan berbagai game digital. Dapat digunakan oleh 1–2 pemain dengan tarif sewa Rp 13.000 per jam.', 'room_6839a4bc77d827.21584428.jpeg'),
+(4, 'reguler 4', 'reguler', 13000, 'Paket standar PlayStation 5 dengan koleksi game digital lengkap yang cocok untuk bermain bersama teman. Ruangan ini dilengkapi dengan PS5 Slim, dua stick controller, dan berbagai game digital. Dapat digunakan oleh 1–2 pemain dengan tarif sewa Rp 13.000 per jam.', 'room_6839a4c5dc9482.40787345.jpeg'),
+(5, 'reguler 5', 'reguler', 13000, 'Paket standar PlayStation 5 dengan koleksi game digital lengkap yang cocok untuk bermain bersama teman. Ruangan ini dilengkapi dengan PS5 Slim, dua stick controller, dan berbagai game digital. Dapat digunakan oleh 1–2 pemain dengan tarif sewa Rp 13.000 per jam.', 'room_6839a4d016eb77.87870507.jpeg'),
+(6, 'vip 1', 'vip', 15000, 'Nikmati pengalaman gaming next-gen dengan PlayStation 5 dan TV 4K untuk kualitas visual terbaik. Fasilitas yang tersedia meliputi PS5, DualSense Controller, TV 4K, dan koleksi game PS5. Cocok untuk 2–3 pemain dengan harga sewa Rp 15.000 per jam.', 'room_6839a4e522a378.43728315.jpeg'),
+(7, 'vip 2', 'vip', 15000, 'Nikmati pengalaman gaming next-gen dengan PlayStation 5 dan TV 4K untuk kualitas visual terbaik. Fasilitas yang tersedia meliputi PS5, DualSense Controller, TV 4K, dan koleksi game PS5. Cocok untuk 2–3 pemain dengan harga sewa Rp 15.000 per jam.', 'room_6839a4efb7f9b1.85153842.jpeg'),
+(8, 'vip 3', 'vip', 15000, 'Nikmati pengalaman gaming next-gen dengan PlayStation 5 dan TV 4K untuk kualitas visual terbaik. Fasilitas yang tersedia meliputi PS5, DualSense Controller, TV 4K, dan koleksi game PS5. Cocok untuk 2–3 pemain dengan harga sewa Rp 15.000 per jam.', 'room_6839a4fa34f7e7.57716925.jpeg'),
+(9, 'private 1', 'private', 20000, 'Ruang privat ideal untuk sesi gaming eksklusif atau acara gathering kecil. Dilengkapi dengan PS4/PS5, 4 controller, smart TV 55 inci, sofa yang nyaman, serta snack & minuman. Direkomendasikan untuk 4–6 orang, dengan tarif Rp 20.000 per jam.', 'room_6839a61f516045.36833343.png');
 
 -- --------------------------------------------------------
 
@@ -218,7 +232,8 @@ INSERT INTO `users` (`id_user`, `nama`, `username`, `email`, `password`) VALUES
 (15, 'iqbal', 'iqbal', 'iqbal@gmail.com', '111'),
 (16, 'dia', 'dia', 'dia@gail.com', '123'),
 (17, 'Haris Nst', 'apis.nst', 'apisbos@gmail.com', '123'),
-(18, 'apis', 'apis.jr', 'apisssa@gmail.com', '123');
+(18, 'apis', 'apis.jr', 'apisssa@gmail.com', '123'),
+(19, 'mujaer', 'muju', 'asoy@gmail.com', '123');
 
 --
 -- Indexes for dumped tables
@@ -286,25 +301,25 @@ ALTER TABLE `admin`
 -- AUTO_INCREMENT for table `games`
 --
 ALTER TABLE `games`
-  MODIFY `id_game` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id_game` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 
 --
 -- AUTO_INCREMENT for table `payments`
 --
 ALTER TABLE `payments`
-  MODIFY `id_payments` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=45;
+  MODIFY `id_payments` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `reservasi`
 --
 ALTER TABLE `reservasi`
-  MODIFY `id_reservasi` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=45;
+  MODIFY `id_reservasi` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `review`
 --
 ALTER TABLE `review`
-  MODIFY `id_review` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id_review` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `room`
@@ -316,7 +331,7 @@ ALTER TABLE `room`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id_user` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+  MODIFY `id_user` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- Constraints for dumped tables

@@ -71,18 +71,7 @@ $queryRoomTypes = "SELECT DISTINCT type_room FROM room";
 $resultRoomTypes = mysqli_query($conn, $queryRoomTypes);
 while ($row = mysqli_fetch_assoc($resultRoomTypes)) {
   $type = strtolower($row['type_room']);
-  // Anda bisa menyimpan deskripsi ini di database atau membuatnya dinamis
-  switch($type) {
-    case 'reguler':
-      $roomTypeDescriptions[$type] = "Reguler - Kapasitas 4 orang. Aturan: Tidak boleh merokok, waktu maksimal 2 jam.";
-      break;
-    case 'vip':
-      $roomTypeDescriptions[$type] = "VIP - Kapasitas 8 orang. Aturan: Boleh membawa makanan, waktu maksimal 4 jam.";
-      break;
-    case 'private':
-      $roomTypeDescriptions[$type] = "Private - Kapasitas 2 orang. Aturan: Privasi penuh, waktu maksimal 3 jam.";
-      break;
-  }
+  $roomTypeDescriptions[$type] = ucfirst($type);
 }
 
 ?>
@@ -99,7 +88,7 @@ while ($row = mysqli_fetch_assoc($resultRoomTypes)) {
   <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
   <!-- Additional CSS Files -->
   <link rel="stylesheet" href="assets/css/fontawesome.css">
-  <link rel="stylesheet" href="assets/css/templatemo-lugx-gaming.css">
+  <link rel="stylesheet" href="assets/css/main.css">
   <link rel="stylesheet" href="assets/css/owl.css">
   <link rel="stylesheet" href="assets/css/animate.css">
   <link rel="stylesheet" href="https://unpkg.com/swiper@7/swiper-bundle.min.css"/>
@@ -128,7 +117,7 @@ while ($row = mysqli_fetch_assoc($resultRoomTypes)) {
           <div class="right-content">
             <div class="row justify-content-center">
               <div class="col-lg-12">
-                <form id="contact-form" action="" method="post" autocomplete="off">
+                <form id="reservation-form" action="" method="post" autocomplete="off">
                   <div class="row">
                     <div class="col-lg-12">
                       <fieldset class="mb-3">
@@ -145,6 +134,8 @@ while ($row = mysqli_fetch_assoc($resultRoomTypes)) {
                               <label for="subject" class="form-label">Phone Number</label>
                               <input type="tel" name="telp" id="subject" class="form-control" value="+62" required
                               pattern="\+62[0-9\-]+"
+                              onkeypress="return event.charCode >= 48 && event.charCode <= 57"
+
                               autocomplete="on">
                             </fieldset>
                             </div>
@@ -165,14 +156,12 @@ while ($row = mysqli_fetch_assoc($resultRoomTypes)) {
                         </div>
                         <div class="mb-3">
                           <fieldset class="mb-0">
-                            <select name="room_type" id="room_type" required class="form-control">
-                              <option value="" disabled selected>Pilih Tipe Ruangan</option>
-                              <?php foreach($roomTypeDescriptions as $type => $description): ?>
-                              <option value="<?php echo $type; ?>">
-                                <?php echo $description; ?>
-                              </option>
-                              <?php endforeach; ?>
-                            </select>
+                          <select name="room_type" id="room_type" required class="form-control">
+                            <option value="" disabled selected>Pilih Tipe Ruangan</option>
+                            <?php foreach($roomTypeDescriptions as $type => $description): ?>
+                            <option value="<?php echo $type; ?>"><?php echo ucfirst($type); ?></option>
+                            <?php endforeach; ?>
+                          </select>
                           </fieldset>
                         </div>
 
@@ -182,14 +171,7 @@ while ($row = mysqli_fetch_assoc($resultRoomTypes)) {
                             <!-- Room radio/button will be rendered here -->
                           </div>
                         </fieldset>
-
-                        <!-- Price Display -->
-                        <div id="price-display" class="mb-3" style="display:none;">
-                          <div class="alert alert-info">
-                            <strong>Harga per Jam:</strong> <span id="room-price">Rp 0</span>
-                          </div>
-                        </div>
-
+                    
                         <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
                         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
                         <script>
@@ -232,10 +214,35 @@ while ($row = mysqli_fetch_assoc($resultRoomTypes)) {
                               radio.className = 'btn-check';
                               radio.autocomplete = 'off';
 
-                              const label = document.createElement('label');
-                              label.className = 'btn btn-outline-primary mb-2';
-                              label.htmlFor = radio.id;
-                              label.innerHTML = `${room.name}<br><small>Rp ${parseInt(room.price).toLocaleString('id-ID')}/jam</small>`;
+                                const label = document.createElement('label');
+                                label.className = 'custom-room-btn';
+                                label.htmlFor = radio.id;
+                                label.innerHTML = `${room.name}<br><small>Rp ${parseInt(room.price).toLocaleString('id-ID')}/jam</small>`;
+
+                                // Add custom CSS
+                                const style = document.createElement('style');
+                                style.textContent = `
+                                .custom-room-btn {
+                                  display: inline-block;
+                                  padding: 10px 20px;
+                                  margin: 5px;
+                                  border: 2px solid #967AA1;
+                                  border-radius: 10px;
+                                  color: #967AA1;
+                                  background: transparent;
+                                  cursor: pointer;
+                                  transition: all 0.3s ease;
+                                }
+                                .custom-room-btn:hover {
+                                  background: #967AA1;
+                                  color: white;
+                                }
+                                .btn-check:checked + .custom-room-btn {
+                                  background: #967AA1;
+                                  color: white;
+                                }
+                                `;
+                                document.head.appendChild(style);
 
                               // Add event listener for price display
                               radio.addEventListener('change', function() {
@@ -263,13 +270,13 @@ while ($row = mysqli_fetch_assoc($resultRoomTypes)) {
                           }
                         </script>
                         <style>
-                          #contact-form fieldset {
+                          #reservation-form fieldset {
                             border: none;
                             padding: 0;
                             margin: 0;
                           }
-                          #contact-form input,
-                          #contact-form select {
+                          #reservation-form input,
+                          #reservation-form select {
                             min-height: 45px;
                           }
                           #room-selection label {
@@ -277,7 +284,6 @@ while ($row = mysqli_fetch_assoc($resultRoomTypes)) {
                             text-align: center;
                           }
                           #room-selection label small {
-                            color: #666;
                             font-weight: normal;
                           }
                           @media (max-width: 767.98px) {
@@ -289,7 +295,7 @@ while ($row = mysqli_fetch_assoc($resultRoomTypes)) {
                         <div class="col-lg-12 text-center">
                             <fieldset>
                             <?php if (!isset($_SESSION['username'])): ?>
-                              <button class="mt-5" type="button" id="login-submit">Login to Make Payment</button>
+                              <button class="mt-5" type="button" id="login-submit">Login to Make Reservasi</button>
                                 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
                                 <script>
                                 document.getElementById('login-submit').addEventListener('click', function() {
@@ -316,7 +322,7 @@ while ($row = mysqli_fetch_assoc($resultRoomTypes)) {
                                 }
                                 </style>
                             <?php else: ?>
-                              <button type="button" id="form-submit" class="mt-5">Make Payment</button>
+                              <button type="button" id="form-submit" class="mt-5">Make Reservasi</button>
                             <?php endif; ?>
                             </fieldset>
                         </div>

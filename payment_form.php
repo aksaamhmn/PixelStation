@@ -127,45 +127,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit_payment'])) {
     <title>Pixel Station - Payment</title>
     <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/fontawesome.css">
-    <link rel="stylesheet" href="assets/css/templatemo-lugx-gaming.css">
+    <link rel="stylesheet" href="assets/css/main.css">
     <link rel="stylesheet" href="assets/css/owl.css">
     <link rel="stylesheet" href="assets/css/animate.css">
     <!-- SweetAlert2 CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
-    
-    <style>
-        .back-button {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border: none;
-            padding: 12px 24px;
-            border-radius: 50px;
-            color: white;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-            margin-bottom: 20px;
-        }
-        
-        .back-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
-            color: white;
-            text-decoration: none;
-        }
-        
-        .back-button i {
-            font-size: 16px;
-            transition: transform 0.3s ease;
-        }
-        
-        .back-button:hover i {
-            transform: translateX(-3px);
-        }
-    </style>
+    <link rel="stylesheet" href="assets/css/payment_form.css">
 </head>
 
 <body>
@@ -304,7 +271,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit_payment'])) {
                 allowOutsideClick: false,
                 allowEscapeKey: false,
                 allowEnterKey: false,
-                timer: 1200,
+                timer: 1000,
                 timerProgressBar: true,
                 didClose: () => {
                     window.location.href = 'profile.php';
@@ -351,9 +318,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit_payment'])) {
                 cancelButtonText: 'Batal'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // Remove beforeunload event listener
-                    window.removeEventListener('beforeunload', beforeUnloadHandler);
-                    
                     // Add hidden submit button and click it
                     const hiddenSubmit = document.createElement('input');
                     hiddenSubmit.type = 'hidden';
@@ -380,7 +344,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit_payment'])) {
                 cancelButtonText: 'Tidak'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    window.removeEventListener('beforeunload', beforeUnloadHandler);
                     window.location.href = 'reservasi.php';
                 }
             });
@@ -399,16 +362,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit_payment'])) {
                 this.value = '';
             }
         });
-
-        // Before unload handler
-        function beforeUnloadHandler(e) {
-            e.preventDefault();
-            e.returnValue = 'Data reservasi belum tersimpan. Yakin ingin meninggalkan halaman ini?';
-            return 'Data reservasi belum tersimpan. Yakin ingin meninggalkan halaman ini?';
-        }
-
-        // Add beforeunload event listener
-        window.addEventListener('beforeunload', beforeUnloadHandler);
 
         // Handle browser back button
         window.addEventListener('popstate', function(e) {

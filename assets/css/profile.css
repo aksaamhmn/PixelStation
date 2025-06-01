@@ -1,0 +1,74 @@
+/* Star Rating Styles */
+.star-rating {
+    direction: rtl;
+    display: inline-flex;
+    font-size: 2rem;
+    gap: 0.2em;
+}
+
+.star-rating input[type="radio"] {
+    display: none;
+}
+
+.star-rating label {
+    color: #ddd;
+    cursor: pointer;
+    transition: color 0.2s;
+    position: relative;
+}
+
+.star-rating label:before {
+    content: "\f005";
+    font-family: "Font Awesome 5 Free";
+    font-weight: 900;
+    position: relative;
+    display: inline-block;
+}
+
+.star-rating input[type="radio"]:checked ~ label:before,
+.star-rating label:hover:before,
+.star-rating label:hover ~ label:before {
+    color: #ffc107;
+}
+
+.bg-light {
+    background-color: #f8f9fa !important;
+}
+
+.badge {
+    font-size: 0.75em;
+}
+
+/* Modal Background Fix */
+.modal-backdrop {
+    display: none !important;
+}
+
+.modal {
+    background: rgba(0, 0, 0, 0.1) !important;
+}
+
+/* SweetAlert2 Styles */
+.swal-popup-centered {
+    text-align: center !important;
+}
+
+.swal-icon-centered {
+    margin: 0 auto !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.swal2-icon {
+    margin: 1.25em auto !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.swal2-success-circular-line-left,
+.swal2-success-circular-line-right,
+.swal2-success-fix {
+    display: block !important;
+}
