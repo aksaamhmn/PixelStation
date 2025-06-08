@@ -13,14 +13,26 @@ $limit = 5; // Jumlah data per halaman
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $offset = ($page - 1) * $limit;
 
-// Hitung total data
-$total_query = "SELECT COUNT(*) as total FROM room";
+// Ambil filter dari parameter GET
+$filter = isset($_GET['filter']) ? $_GET['filter'] : 'all';
+
+// Hitung total data (dengan filter)
+if ($filter == 'all') {
+    $total_query = "SELECT COUNT(*) as total FROM room";
+} else {
+    $total_query = "SELECT COUNT(*) as total FROM room WHERE type_room = '$filter'";
+}
 $total_result = $conn->query($total_query);
 $total_data = $total_result->fetch_assoc()['total'];
 $total_pages = ceil($total_data / $limit);
 
-// Ambil data rooms dengan limit dan offset
-$query = "SELECT * FROM room LIMIT $limit OFFSET $offset";
+// Ambil data rooms dengan filter, limit dan offset
+if ($filter == 'all') {
+    $query = "SELECT * FROM room ORDER BY id_room DESC LIMIT $limit OFFSET $offset";
+} else {
+    $query = "SELECT * FROM room WHERE type_room = '$filter' ORDER BY id_room DESC LIMIT $limit OFFSET $offset";
+}
+
 $rooms = $conn->query($query);
 
 // Alert handler (letakkan di atas <!DOCTYPE html>)
@@ -97,9 +109,26 @@ if (isset($_SESSION['alert'])) {
                         <div class="col-12">
                             <div class="card">
                                 <div class="card-header d-flex justify-content-between align-items-center">
-                                    <h4 class="card-title">Rooms Table</h4>
+                                    <div class="d-flex align-items-center">
+                                        <h4 class="card-title me-3">Rooms Table</h4>
+                                        <!-- Filter Buttons -->
+                                        <div class="btn-group" role="group" aria-label="Filter Room Type">
+                                            <button type="button" class="btn btn-outline-primary <?php echo ($filter == 'all') ? 'active' : ''; ?>" onclick="filterRooms('all')">
+                                                <i class="fas fa-list"></i> All Rooms
+                                            </button>
+                                            <button type="button" class="btn btn-outline-success <?php echo ($filter == 'reguler') ? 'active' : ''; ?>" onclick="filterRooms('reguler')">
+                                                <i class="fas fa-home"></i> Reguler
+                                            </button>
+                                            <button type="button" class="btn btn-outline-warning <?php echo ($filter == 'vip') ? 'active' : ''; ?>" onclick="filterRooms('vip')">
+                                                <i class="fas fa-crown"></i> VIP
+                                            </button>
+                                            <button type="button" class="btn btn-outline-danger <?php echo ($filter == 'private') ? 'active' : ''; ?>" onclick="filterRooms('private')">
+                                                <i class="fas fa-lock"></i> Private
+                                            </button>
+                                        </div>
+                                    </div>
                                     <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalAddRooms">
-                                        <i class="bi bi-plus"></i>
+                                        <i class="bi bi-plus"></i> Add Room
                                     </button>
 
                                     <!-- Modal Tambah Data Room -->
@@ -178,7 +207,19 @@ if (isset($_SESSION['alert'])) {
                                                     <tr>
                                                         <td><?php echo $no++; ?></td>
                                                         <td><?php echo $row['section_room']; ?></td>
-                                                        <td><?php echo ucfirst($row['type_room']); ?></td>
+                                                        <td>
+                                                            <span class="badge 
+                                                                <?php 
+                                                                switch($row['type_room']) {
+                                                                    case 'reguler': echo 'bg-success'; break;
+                                                                    case 'vip': echo 'bg-warning'; break;
+                                                                    case 'private': echo 'bg-danger'; break;
+                                                                    default: echo 'bg-secondary';
+                                                                }
+                                                                ?>">
+                                                                <?php echo ucfirst($row['type_room']); ?>
+                                                            </span>
+                                                        </td>
                                                         <td>Rp <?php echo number_format($row['harga'], 0, ',', '.'); ?></td>
                                                         <td style="max-width: 200px; white-space: normal; word-wrap: break-word;">
                                                             <?php echo $row['keterangan']; ?>
@@ -261,7 +302,21 @@ if (isset($_SESSION['alert'])) {
                                                 <?php } ?>
                                             <?php else: ?>
                                                 <tr>
-                                                    <td colspan="7" class="text-center">Tidak ada data room</td>
+<td colspan="7" class="text-center">
+    <div class="py-4">
+        <i class="fas fa-bed fa-3x text-muted mb-3"></i>
+        <p class="text-muted">
+            <?php 
+            if ($filter == 'all') {
+                echo 'Tidak ada data room';
+            } else {
+                echo 'Tidak ada room dengan tipe ' . ucfirst($filter);
+            }
+            ?>
+        </p>
+    </div>
+</td>
+
                                                 </tr>
                                             <?php endif; ?>
                                             </tbody>
@@ -365,6 +420,28 @@ if (isset($_SESSION['alert'])) {
                     }
                 });
             }
+
+            function filterRooms(type) {
+                // Show loading effect
+                Swal.fire({
+                    title: 'Loading...',
+                    text: 'Memfilter data room',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                // Redirect with filter parameter
+                window.location.href = '?filter=' + type;
+            }
+
+            // Auto close loading if present
+            document.addEventListener('DOMContentLoaded', function() {
+                if (Swal.isLoading()) {
+                    Swal.close();
+                }
+            });
         </script>
 </body>
 
