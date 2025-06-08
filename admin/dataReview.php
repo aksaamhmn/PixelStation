@@ -1,7 +1,6 @@
 <?php
 session_start();
 
-
 if (!isset($_SESSION['logged_in'])) {
     header('location: adminLogin.php');
     exit;
@@ -9,10 +8,46 @@ if (!isset($_SESSION['logged_in'])) {
 include ('./layout/sidebar.php');
 include '../server/connection.php';
 
-// Query untuk mengambil semua review dengan informasi terkait
+// Pagination setup
+$limit = 6; // Jumlah data per halaman
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+$rating_filter = isset($_GET['rating']) ? (int)$_GET['rating'] : 0;
+$offset = ($page - 1) * $limit;
+
+// Query untuk mengambil semua review dengan informasi terkait dengan pagination dan filter
 $reviews = [];
 try {
-    $stmt = $conn->prepare("SELECT 
+    // Build WHERE clause untuk filter rating
+    $whereClause = "";
+    $params = [];
+    $paramTypes = "";
+    
+    if ($rating_filter > 0) {
+        $whereClause = " AND rv.rating = ?";
+        $params[] = $rating_filter;
+        $paramTypes .= "i";
+    }
+    
+    // Hitung total data untuk pagination dengan filter
+    $totalQuery = "SELECT COUNT(*) as total FROM review rv
+        JOIN reservasi r ON rv.id_reservasi = r.id_reservasi
+        JOIN users u ON rv.id_user = u.id_user
+        JOIN room rm ON r.id_room = rm.id_room
+        JOIN payments p ON r.id_payments = p.id_payments
+        WHERE 1=1" . $whereClause;
+    
+    $totalStmt = $conn->prepare($totalQuery);
+    if (!empty($params)) {
+        $totalStmt->bind_param($paramTypes, ...$params);
+    }
+    $totalStmt->execute();
+    $totalResult = $totalStmt->get_result();
+    $total_data = $totalResult->fetch_assoc()['total'];
+    $total_pages = ceil($total_data / $limit);
+    $totalStmt->close();
+
+    // Query data dengan pagination dan filter
+    $dataQuery = "SELECT 
     rv.id_review,
     rv.review_text,
     rv.rating,
@@ -32,8 +67,14 @@ JOIN reservasi r ON rv.id_reservasi = r.id_reservasi
 JOIN users u ON rv.id_user = u.id_user
 JOIN room rm ON r.id_room = rm.id_room
 JOIN payments p ON r.id_payments = p.id_payments
-ORDER BY rv.created_at DESC");
+WHERE 1=1" . $whereClause . "
+ORDER BY rv.created_at DESC
+LIMIT ? OFFSET ?";
     
+    $stmt = $conn->prepare($dataQuery);
+    $allParams = array_merge($params, [$limit, $offset]);
+    $allParamTypes = $paramTypes . "ii";
+    $stmt->bind_param($allParamTypes, ...$allParams);
     $stmt->execute();
     $result = $stmt->get_result();
     
@@ -43,6 +84,31 @@ ORDER BY rv.created_at DESC");
     $stmt->close();
 } catch (Exception $e) {
     echo "<script>console.error('Error query: " . $e->getMessage() . "');</script>";
+}
+
+// Query untuk statistik (tetap mengambil semua data untuk perhitungan)
+$allReviews = [];
+try {
+    $allStmt = $conn->prepare("SELECT 
+    rv.id_review,
+    rv.rating,
+    rv.created_at
+FROM review rv
+JOIN reservasi r ON rv.id_reservasi = r.id_reservasi
+JOIN users u ON rv.id_user = u.id_user
+JOIN room rm ON r.id_room = rm.id_room
+JOIN payments p ON r.id_payments = p.id_payments
+ORDER BY rv.created_at DESC");
+    
+    $allStmt->execute();
+    $allResult = $allStmt->get_result();
+    
+    while ($row = $allResult->fetch_assoc()) {
+        $allReviews[] = $row;
+    }
+    $allStmt->close();
+} catch (Exception $e) {
+    echo "<script>console.error('Error query statistics: " . $e->getMessage() . "');</script>";
 }
 
 // Function untuk menampilkan bintang rating
@@ -63,6 +129,15 @@ function countReviewsByRating($reviews, $rating) {
     return count(array_filter($reviews, function($r) use ($rating) { 
         return $r['rating'] == $rating; 
     }));
+}
+
+// Function untuk generate pagination URL
+function generatePageUrl($page, $rating = null) {
+    $params = ['page' => $page];
+    if ($rating !== null && $rating > 0) {
+        $params['rating'] = $rating;
+    }
+    return '?' . http_build_query($params);
 }
 ?>
 
@@ -111,7 +186,6 @@ function countReviewsByRating($reviews, $rating) {
             transition: all 0.3s ease;
         }
         .filter-btn.active {
-            background-color: #007bff;
             color: white;
             transform: scale(1.05);
         }
@@ -155,7 +229,7 @@ function countReviewsByRating($reviews, $rating) {
                         <div class="card">
                             <div class="card-body">
                                 <h5 class="card-title">Total Reviews</h5>
-                                <h3 class="text-primary"><?= count($reviews) ?></h3>
+                                <h3 class="text-primary"><?= count($allReviews) ?></h3>
                             </div>
                         </div>
                     </div>
@@ -165,8 +239,8 @@ function countReviewsByRating($reviews, $rating) {
                                 <h5 class="card-title">Average Rating</h5>
                                 <h3 class="text-success">
                                     <?php 
-                                    if (!empty($reviews)) {
-                                        $avgRating = array_sum(array_column($reviews, 'rating')) / count($reviews);
+                                    if (!empty($allReviews)) {
+                                        $avgRating = array_sum(array_column($allReviews, 'rating')) / count($allReviews);
                                         echo number_format($avgRating, 1);
                                     } else {
                                         echo "0.0";
@@ -182,7 +256,7 @@ function countReviewsByRating($reviews, $rating) {
                             <div class="card-body">
                                 <h5 class="card-title">5 Star Reviews</h5>
                                 <h3 class="text-warning">
-                                    <?= count(array_filter($reviews, function($r) { return $r['rating'] == 5; })) ?>
+                                    <?= count(array_filter($allReviews, function($r) { return $r['rating'] == 5; })) ?>
                                 </h3>
                             </div>
                         </div>
@@ -193,8 +267,8 @@ function countReviewsByRating($reviews, $rating) {
                                 <h5 class="card-title">Latest Review</h5>
                                 <h6 class="text-info">
                                     <?php 
-                                    if (!empty($reviews)) {
-                                        echo date('d M Y', strtotime($reviews[0]['created_at']));
+                                    if (!empty($allReviews)) {
+                                        echo date('d M Y', strtotime($allReviews[0]['created_at']));
                                     } else {
                                         echo "No reviews yet";
                                     }
@@ -208,12 +282,12 @@ function countReviewsByRating($reviews, $rating) {
                 <!-- Filter Buttons -->
                 <div class="filter-buttons text-center">
                     <h5 class="mb-3">Filter by Rating</h5>
-                    <button class="btn btn-outline-primary filter-btn active" onclick="filterReviews(0)">
+                    <a href="<?= generatePageUrl(1, 0) ?>" class="btn btn-outline-primary filter-btn <?= $rating_filter == 0 ? 'active' : '' ?>">
                         <i class="bi bi-list"></i> All Reviews
-                        <span class="badge bg-primary ms-2"><?= count($reviews) ?></span>
-                    </button>
+                        <span class="badge bg-primary ms-2"><?= count($allReviews) ?></span>
+                    </a>
                     <?php for($i = 5; $i >= 1; $i--): ?>
-                        <button class="btn btn-outline-warning filter-btn" onclick="filterReviews(<?= $i ?>)">
+                        <a href="<?= generatePageUrl(1, $i) ?>" class="btn btn-outline-warning filter-btn <?= $rating_filter == $i ? 'active' : '' ?>">
                             <?php for($j = 1; $j <= $i; $j++): ?>
                                 <i class="bi bi-star-fill"></i>
                             <?php endfor; ?>
@@ -222,9 +296,19 @@ function countReviewsByRating($reviews, $rating) {
                                     <i class="bi bi-star text-muted"></i>
                                 <?php endfor; ?>
                             <?php endif; ?>
-                            <span class="badge bg-warning ms-2"><?= countReviewsByRating($reviews, $i) ?></span>
-                        </button>
+                            <span class="badge bg-warning ms-2"><?= countReviewsByRating($allReviews, $i) ?></span>
+                        </a>
                     <?php endfor; ?>
+                </div>
+
+                <!-- Info pagination -->
+                <div class="mb-3">
+                    <medium class="text-muted">
+                        Menampilkan <?php echo min($offset + 1, $total_data); ?> - <?php echo min($offset + $limit, $total_data); ?> dari <?php echo $total_data; ?> review
+                        <?php if ($rating_filter > 0): ?>
+                            (difilter berdasarkan <?= $rating_filter ?> bintang)
+                        <?php endif; ?>
+                    </medium>
                 </div>
 
                 <section class="section">
@@ -234,8 +318,20 @@ function countReviewsByRating($reviews, $rating) {
                                 <div class="card">
                                     <div class="card-body text-center py-5">
                                         <i class="bi bi-star display-1 text-muted"></i>
-                                        <h4 class="mt-3">No Reviews Yet</h4>
-                                        <p class="text-muted">No customer has submitted a review yet.</p>
+                                        <h4 class="mt-3">
+                                            <?php if ($rating_filter > 0): ?>
+                                                No <?= $rating_filter ?> Star Reviews
+                                            <?php else: ?>
+                                                No Reviews Yet
+                                            <?php endif; ?>
+                                        </h4>
+                                        <p class="text-muted">
+                                            <?php if ($rating_filter > 0): ?>
+                                                No customer has submitted a <?= $rating_filter ?> star review yet.
+                                            <?php else: ?>
+                                                No customer has submitted a review yet.
+                                            <?php endif; ?>
+                                        </p>
                                     </div>
                                 </div>
                             </div>
@@ -311,19 +407,66 @@ function countReviewsByRating($reviews, $rating) {
                                 </div>
                             <?php endforeach; ?>
                         </div>
-                        
-                        <!-- No Results Message (initially hidden) -->
-                        <div class="row hidden" id="noResultsMessage">
-                            <div class="col-12">
-                                <div class="card">
-                                    <div class="card-body text-center py-5">
-                                        <i class="bi bi-search display-1 text-muted"></i>
-                                        <h4 class="mt-3">No Reviews Found</h4>
-                                        <p class="text-muted">No reviews found for the selected rating filter.</p>
-                                    </div>
-                                </div>
+
+                        <!-- Pagination -->
+                        <?php if ($total_pages > 1): ?>
+                        <div class="d-flex justify-content-between align-items-center py-3">
+                            <div>
+                                <small class="text-muted">Halaman <?php echo $page; ?> dari <?php echo $total_pages; ?></small>
                             </div>
+                            <nav aria-label="Page navigation">
+                                <ul class="pagination pagination-sm mb-0">
+                                    <!-- Previous Button -->
+                                    <li class="page-item <?php echo ($page <= 1) ? 'disabled' : ''; ?>">
+                                        <a class="page-link text-primary" href="<?php echo ($page <= 1) ? '#' : generatePageUrl($page - 1, $rating_filter); ?>" 
+                                           <?php echo ($page <= 1) ? 'tabindex="-1" aria-disabled="true"' : ''; ?>>
+                                            <i class="bi bi-chevron-left"></i>
+                                        </a>
+                                    </li>
+                                    
+                                    <!-- Page Numbers -->
+                                    <?php
+                                    $start_page = max(1, $page - 2);
+                                    $end_page = min($total_pages, $page + 2);
+                                    
+                                    // Tampilkan halaman pertama jika tidak termasuk dalam range
+                                    if ($start_page > 1) {
+                                        echo '<li class="page-item"><a class="page-link text-primary" href="' . generatePageUrl(1, $rating_filter) . '">1</a></li>';
+                                        if ($start_page > 2) {
+                                            echo '<li class="page-item disabled"><span class="page-link text-muted">...</span></li>';
+                                        }
+                                    }
+                                    
+                                    // Tampilkan range halaman
+                                    for ($i = $start_page; $i <= $end_page; $i++) {
+                                        $active = ($i == $page) ? 'active' : '';
+                                        if ($active) {
+                                            echo '<li class="page-item active"><a class="page-link bg-primary text-white" href="' . generatePageUrl($i, $rating_filter) . '">' . $i . '</a></li>';
+                                        } else {
+                                            echo '<li class="page-item"><a class="page-link text-primary" href="' . generatePageUrl($i, $rating_filter) . '">' . $i . '</a></li>';
+                                        }
+                                    }
+                                    
+                                    // Tampilkan halaman terakhir jika tidak termasuk dalam range
+                                    if ($end_page < $total_pages) {
+                                        if ($end_page < $total_pages - 1) {
+                                            echo '<li class="page-item disabled"><span class="page-link text-muted">...</span></li>';
+                                        }
+                                        echo '<li class="page-item"><a class="page-link text-primary" href="' . generatePageUrl($total_pages, $rating_filter) . '">' . $total_pages . '</a></li>';
+                                    }
+                                    ?>
+                                    
+                                    <!-- Next Button -->
+                                    <li class="page-item <?php echo ($page >= $total_pages) ? 'disabled' : ''; ?>">
+                                        <a class="page-link text-primary" href="<?php echo ($page >= $total_pages) ? '#' : generatePageUrl($page + 1, $rating_filter); ?>"
+                                           <?php echo ($page >= $total_pages) ? 'tabindex="-1" aria-disabled="true"' : ''; ?>>
+                                            <i class="bi bi-chevron-right"></i>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </nav>
                         </div>
+                        <?php endif; ?>
                     <?php endif; ?>
                 </section>
 
@@ -360,38 +503,6 @@ function countReviewsByRating($reviews, $rating) {
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
     <script>
-        function filterReviews(rating) {
-            const reviewItems = document.querySelectorAll('.review-item');
-            const filterButtons = document.querySelectorAll('.filter-btn');
-            const noResultsMessage = document.getElementById('noResultsMessage');
-            let visibleCount = 0;
-            
-            // Remove active class from all buttons
-            filterButtons.forEach(btn => btn.classList.remove('active'));
-            
-            // Add active class to clicked button
-            event.target.classList.add('active');
-            
-            // Show/hide reviews based on rating
-            reviewItems.forEach(item => {
-                const itemRating = parseInt(item.getAttribute('data-rating'));
-                
-                if (rating === 0 || itemRating === rating) {
-                    item.classList.remove('hidden');
-                    visibleCount++;
-                } else {
-                    item.classList.add('hidden');
-                }
-            });
-            
-            // Show/hide no results message
-            if (visibleCount === 0) {
-                noResultsMessage.classList.remove('hidden');
-            } else {
-                noResultsMessage.classList.add('hidden');
-            }
-        }
-        
         function viewDetailReview(reviewId) {
             // Find the button that triggered the modal
             const button = document.querySelector(`[onclick="viewDetailReview('${reviewId}')"]`);
