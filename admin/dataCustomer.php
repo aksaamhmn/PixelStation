@@ -1,7 +1,6 @@
 <?php
 session_start();
 
-
 if (!isset($_SESSION['logged_in'])) {
     header('location: adminLogin.php');
     exit;
@@ -9,7 +8,20 @@ if (!isset($_SESSION['logged_in'])) {
 include ('./layout/sidebar.php');
 include '../server/connection.php';
 
-$result = $conn->query("SELECT * FROM users");
+// Pagination setup
+$limit = 10; // Jumlah data per halaman
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+$offset = ($page - 1) * $limit;
+
+// Hitung total data
+$total_query = "SELECT COUNT(*) as total FROM users";
+$total_result = $conn->query($total_query);
+$total_data = $total_result->fetch_assoc()['total'];
+$total_pages = ceil($total_data / $limit);
+
+// Ambil data users dengan limit dan offset
+$query = "SELECT * FROM users LIMIT $limit OFFSET $offset";
+$result = $conn->query($query);
 
 ?>
 
@@ -61,33 +73,106 @@ $result = $conn->query("SELECT * FROM users");
                                     <h4 class="card-title">Customers Table</h4>
                                 </div>
                                 <div class="card-content">
+                                    <!-- Info pagination -->
+                                    <div class="px-4 py-2">
+                                        <medium class="text-muted">
+                                            Menampilkan <?php echo min($offset + 1, $total_data); ?> - <?php echo min($offset + $limit, $total_data); ?> dari <?php echo $total_data; ?> data
+                                        </medium>
+                                    </div>
+                                    
                                     <div class="table-responsive">
                                         <table class="table table-striped mb-0">
                                             <thead>
                                                 <tr>
-                                                    <th>ID</th>
+                                                    <th>NO</th>
                                                     <th>NAMA LENGKAP</th>
                                                     <th>USERNAME</th>
                                                     <th>EMAIL</th>
-                                                    <th>PASSWORD</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                            <?php while ($row = $result->fetch_assoc()): ?>
+                                            <?php if ($result->num_rows > 0): ?>
+                                                <?php 
+                                                $no = $offset + 1; // Mulai nomor sesuai halaman
+                                                while ($row = $result->fetch_assoc()): ?>
+                                                    <tr>
+                                                        <td><?php echo $no++; ?></td>
+                                                        <td class="text-bold-500">
+                                                            <img src="../assets/images/profile.png" alt="Profile" width="32" height="32" class="rounded-circle me-2">
+                                                            <?= $row['nama'] ?>
+                                                        </td>
+                                                        <td><?= $row['username'] ?></td>
+                                                        <td><?= $row['email'] ?></td>
+                                                    </tr>
+                                                <?php endwhile; ?>
+                                            <?php else: ?>
                                                 <tr>
-                                                    <td><?= $row['id_user'] ?></td>
-                                                    <td class="text-bold-500">
-                                                        <img src="../assets/images/profile.png" alt="Profile" width="32" height="32" class="rounded-circle me-2">
-                                                        <?= $row['nama'] ?>
-                                                    </td>
-                                                    <td><?= $row['username'] ?></td>
-                                                    <td><?= $row['email'] ?></td>
-                                                    <td><?= substr(password_hash($row['password'], PASSWORD_DEFAULT), 0, 10) ?></td>
+                                                    <td colspan="4" class="text-center">Tidak ada data customer</td>
                                                 </tr>
-                                            <?php endwhile; ?>
+                                            <?php endif; ?>
                                             </tbody>
                                         </table>
                                     </div>
+                                    
+                                    <!-- Pagination -->
+                                    <?php if ($total_pages > 1): ?>
+                                    <div class="d-flex justify-content-between align-items-center px-4 py-3">
+                                        <div>
+                                            <small class="text-muted">Halaman <?php echo $page; ?> dari <?php echo $total_pages; ?></small>
+                                        </div>
+                                        <nav aria-label="Page navigation">
+                                            <ul class="pagination pagination-sm mb-0">
+                                                <!-- Previous Button -->
+                                                <li class="page-item <?php echo ($page <= 1) ? 'disabled' : ''; ?>">
+                                                    <a class="page-link text-primary" href="<?php echo ($page <= 1) ? '#' : '?page=' . ($page - 1); ?>" 
+                                                       <?php echo ($page <= 1) ? 'tabindex="-1" aria-disabled="true"' : ''; ?>>
+                                                        <i class="bi bi-chevron-left"></i>
+                                                    </a>
+                                                </li>
+                                                
+                                                <!-- Page Numbers -->
+                                                <?php
+                                                $start_page = max(1, $page - 2);
+                                                $end_page = min($total_pages, $page + 2);
+                                                
+                                                // Tampilkan halaman pertama jika tidak termasuk dalam range
+                                                if ($start_page > 1) {
+                                                    echo '<li class="page-item"><a class="page-link text-primary" href="?page=1">1</a></li>';
+                                                    if ($start_page > 2) {
+                                                        echo '<li class="page-item disabled"><span class="page-link text-muted">...</span></li>';
+                                                    }
+                                                }
+                                                
+                                                // Tampilkan range halaman
+                                                for ($i = $start_page; $i <= $end_page; $i++) {
+                                                    $active = ($i == $page) ? 'active' : '';
+                                                    if ($active) {
+                                                        echo '<li class="page-item active"><a class="page-link bg-primary text-white" href="?page=' . $i . '">' . $i . '</a></li>';
+                                                    } else {
+                                                        echo '<li class="page-item"><a class="page-link text-primary" href="?page=' . $i . '">' . $i . '</a></li>';
+                                                    }
+                                                }
+                                                
+                                                // Tampilkan halaman terakhir jika tidak termasuk dalam range
+                                                if ($end_page < $total_pages) {
+                                                    if ($end_page < $total_pages - 1) {
+                                                        echo '<li class="page-item disabled"><span class="page-link text-muted">...</span></li>';
+                                                    }
+                                                    echo '<li class="page-item"><a class="page-link text-primary" href="?page=' . $total_pages . '">' . $total_pages . '</a></li>';
+                                                }
+                                                ?>
+                                                
+                                                <!-- Next Button -->
+                                                <li class="page-item <?php echo ($page >= $total_pages) ? 'disabled' : ''; ?>">
+                                                    <a class="page-link text-primary" href="<?php echo ($page >= $total_pages) ? '#' : '?page=' . ($page + 1); ?>"
+                                                       <?php echo ($page >= $total_pages) ? 'tabindex="-1" aria-disabled="true"' : ''; ?>>
+                                                        <i class="bi bi-chevron-right"></i>
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </nav>
+                                    </div>
+                                    <?php endif; ?>
                                 </div>
                             </div>
                         </div>

@@ -7,9 +7,25 @@ if (!isset($_SESSION['logged_in'])) {
 include ('./layout/sidebar.php');
 include '../server/connection.php';
 
-// Query untuk mengambil semua data reservasi dengan informasi terkait termasuk status pembayaran
+// Pagination setup
+$limit = 5; // Jumlah data per halaman
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+$offset = ($page - 1) * $limit;
+
+// Query untuk mengambil semua data reservasi dengan informasi terkait termasuk status pembayaran dengan pagination
 $reservations = [];
 try {
+    // Hitung total data untuk pagination
+    $totalStmt = $conn->prepare("SELECT COUNT(*) as total FROM reservasi r
+        JOIN room rm ON r.id_room = rm.id_room
+        LEFT JOIN payments p ON r.id_payments = p.id_payments");
+    $totalStmt->execute();
+    $totalResult = $totalStmt->get_result();
+    $total_data = $totalResult->fetch_assoc()['total'];
+    $total_pages = ceil($total_data / $limit);
+    $totalStmt->close();
+
+    // Query data dengan pagination
     $stmt = $conn->prepare("SELECT 
     r.id_reservasi,
     r.nama AS customer_name,
@@ -28,9 +44,10 @@ try {
 FROM reservasi r
 JOIN room rm ON r.id_room = rm.id_room
 LEFT JOIN payments p ON r.id_payments = p.id_payments
-ORDER BY r.id_reservasi DESC;
-");
+ORDER BY r.id_reservasi DESC
+LIMIT ? OFFSET ?");
     
+    $stmt->bind_param("ii", $limit, $offset);
     $stmt->execute();
     $result = $stmt->get_result();
     
@@ -40,6 +57,29 @@ ORDER BY r.id_reservasi DESC;
     $stmt->close();
 } catch (Exception $e) {
     echo "<script>console.error('Error query: " . $e->getMessage() . "');</script>";
+}
+
+// Query untuk statistik (tetap mengambil semua data untuk perhitungan)
+$allReservations = [];
+try {
+    $allStmt = $conn->prepare("SELECT 
+    r.id_reservasi,
+    r.reservation_date,
+    p.payment_status,
+    p.amount AS price
+FROM reservasi r
+JOIN room rm ON r.id_room = rm.id_room
+LEFT JOIN payments p ON r.id_payments = p.id_payments");
+    
+    $allStmt->execute();
+    $allResult = $allStmt->get_result();
+    
+    while ($row = $allResult->fetch_assoc()) {
+        $allReservations[] = $row;
+    }
+    $allStmt->close();
+} catch (Exception $e) {
+    echo "<script>console.error('Error query statistics: " . $e->getMessage() . "');</script>";
 }
 
 // Function untuk memformat tanggal ke format Indonesia
@@ -140,7 +180,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['reject_payment'])) {
                         <div class="card">
                             <div class="card-body">
                                 <h5 class="card-title">Total Reservations</h5>
-                                <h3 class="text-primary"><?= count($reservations) ?></h3>
+                                <h3 class="text-primary"><?= count($allReservations) ?></h3>
                             </div>
                         </div>
                     </div>
@@ -151,7 +191,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['reject_payment'])) {
                                 <h3 class="text-success">
                                     <?php 
                                     $totalRevenue = 0;
-                                    foreach ($reservations as $r) {
+                                    foreach ($allReservations as $r) {
                                         if (isset($r['payment_status']) && ($r['payment_status'] === 'confirmed' || $r['payment_status'] === 'expired')) {
                                             $totalRevenue += $r['price'];
                                         }
@@ -169,7 +209,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['reject_payment'])) {
                                 <h3 class="text-warning">
                                     <?php 
                                     $today = date('Y-m-d');
-                                    $todayReservations = array_filter($reservations, function($r) use ($today) {
+                                    $todayReservations = array_filter($allReservations, function($r) use ($today) {
                                         return $r['reservation_date'] == $today;
                                     });
                                     echo count($todayReservations);
@@ -184,7 +224,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['reject_payment'])) {
                                 <h5 class="card-title">Pending Payments</h5>
                                 <h3 class="text-danger">
                                     <?php 
-                                    $pendingPayments = array_filter($reservations, function($r) {
+                                    $pendingPayments = array_filter($allReservations, function($r) {
                                         return isset($r['payment_status']) && $r['payment_status'] == 'pending';
                                     });
                                     echo count($pendingPayments);
@@ -203,11 +243,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['reject_payment'])) {
                                     <h4 class="card-title">Reservations Table</h4>
                                 </div>
                                 <div class="card-content">
+                                    <!-- Info pagination -->
+                                    <div class="px-4 py-2">
+                                        <medium class="text-muted">
+                                            Menampilkan <?php echo min($offset + 1, $total_data); ?> - <?php echo min($offset + $limit, $total_data); ?> dari <?php echo $total_data; ?> data
+                                        </medium>
+                                    </div>
+                                    
                                     <div class="table-responsive">
                                         <table class="table table-striped mb-0">
                                             <thead>
                                                 <tr>
-                                                    <th>ID RESERVASI</th>
+                                                    <th>NO</th>
                                                     <th>CUSTOMER</th>
                                                     <th>NO TELP</th>
                                                     <th>TIPE RUANGAN</th>
@@ -224,9 +271,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['reject_payment'])) {
                                                         <td colspan="9" class="text-center">Tidak ada data reservasi</td>
                                                     </tr>
                                                 <?php else: ?>
-                                                    <?php foreach ($reservations as $reservation): ?>
+                                                    <?php 
+                                                    $no = $offset + 1; // Mulai nomor sesuai halaman
+                                                    foreach ($reservations as $reservation): ?>
                                                         <tr>
-                                                            <td><?= $reservation['id_reservasi'] ?></td>
+                                                            <td><?= $no++ ?></td>
                                                             <td><?= htmlspecialchars($reservation['customer_name']) ?></td>
                                                             <td><?= htmlspecialchars($reservation['customer_phone']) ?></td>
                                                             <td><?= htmlspecialchars($reservation['type_room']) ?> (<?= htmlspecialchars($reservation['section_room']) ?>)</td>
@@ -268,7 +317,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['reject_payment'])) {
                                                                 </button>
                                                                 
                                                                 <?php if (isset($reservation['payment_status']) && $reservation['payment_status'] == 'pending'): ?>
-                                                                <button class="btn btn-sm btn-success mt-3"
+                                                                <button class="btn btn-sm btn-success mt-1"
                                                                         data-bs-toggle="modal"
                                                                         data-bs-target="#confirmModal"
                                                                         data-payment-id="<?= $reservation['payment_id'] ?>"
@@ -285,6 +334,66 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['reject_payment'])) {
                                             </tbody>
                                         </table>
                                     </div>
+                                    
+                                    <!-- Pagination -->
+                                    <?php if ($total_pages > 1): ?>
+                                    <div class="d-flex justify-content-between align-items-center px-4 py-3">
+                                        <div>
+                                            <small class="text-muted">Halaman <?php echo $page; ?> dari <?php echo $total_pages; ?></small>
+                                        </div>
+                                        <nav aria-label="Page navigation">
+                                            <ul class="pagination pagination-sm mb-0">
+                                                <!-- Previous Button -->
+                                                <li class="page-item <?php echo ($page <= 1) ? 'disabled' : ''; ?>">
+                                                    <a class="page-link text-primary" href="<?php echo ($page <= 1) ? '#' : '?page=' . ($page - 1); ?>" 
+                                                       <?php echo ($page <= 1) ? 'tabindex="-1" aria-disabled="true"' : ''; ?>>
+                                                        <i class="bi bi-chevron-left"></i>
+                                                    </a>
+                                                </li>
+                                                
+                                                <!-- Page Numbers -->
+                                                <?php
+                                                $start_page = max(1, $page - 2);
+                                                $end_page = min($total_pages, $page + 2);
+                                                
+                                                // Tampilkan halaman pertama jika tidak termasuk dalam range
+                                                if ($start_page > 1) {
+                                                    echo '<li class="page-item"><a class="page-link text-primary" href="?page=1">1</a></li>';
+                                                    if ($start_page > 2) {
+                                                        echo '<li class="page-item disabled"><span class="page-link text-muted">...</span></li>';
+                                                    }
+                                                }
+                                                
+                                                // Tampilkan range halaman
+                                                for ($i = $start_page; $i <= $end_page; $i++) {
+                                                    $active = ($i == $page) ? 'active' : '';
+                                                    if ($active) {
+                                                        echo '<li class="page-item active"><a class="page-link bg-primary text-white" href="?page=' . $i . '">' . $i . '</a></li>';
+                                                    } else {
+                                                        echo '<li class="page-item"><a class="page-link text-primary" href="?page=' . $i . '">' . $i . '</a></li>';
+                                                    }
+                                                }
+                                                
+                                                // Tampilkan halaman terakhir jika tidak termasuk dalam range
+                                                if ($end_page < $total_pages) {
+                                                    if ($end_page < $total_pages - 1) {
+                                                        echo '<li class="page-item disabled"><span class="page-link text-muted">...</span></li>';
+                                                    }
+                                                    echo '<li class="page-item"><a class="page-link text-primary" href="?page=' . $total_pages . '">' . $total_pages . '</a></li>';
+                                                }
+                                                ?>
+                                                
+                                                <!-- Next Button -->
+                                                <li class="page-item <?php echo ($page >= $total_pages) ? 'disabled' : ''; ?>">
+                                                    <a class="page-link text-primary" href="<?php echo ($page >= $total_pages) ? '#' : '?page=' . ($page + 1); ?>"
+                                                       <?php echo ($page >= $total_pages) ? 'tabindex="-1" aria-disabled="true"' : ''; ?>>
+                                                        <i class="bi bi-chevron-right"></i>
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </nav>
+                                    </div>
+                                    <?php endif; ?>
                                 </div>
                             </div>
                         </div>

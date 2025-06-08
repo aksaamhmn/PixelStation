@@ -8,15 +8,31 @@ if (!isset($_SESSION['logged_in'])) {
 include ('./layout/sidebar.php');
 include '../server/connection.php';
 
+// Pagination setup
+$limit = 5; // Jumlah data per halaman
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+$offset = ($page - 1) * $limit;
+
 // Ambil filter dari parameter GET
 $filter = isset($_GET['filter']) ? $_GET['filter'] : 'all';
 
-// Query berdasarkan filter
+// Hitung total data (dengan filter)
 if ($filter == 'all') {
-    $query = "SELECT * FROM room ORDER BY id_room DESC";
+    $total_query = "SELECT COUNT(*) as total FROM room";
 } else {
-    $query = "SELECT * FROM room WHERE type_room = '$filter' ORDER BY id_room DESC";
+    $total_query = "SELECT COUNT(*) as total FROM room WHERE type_room = '$filter'";
 }
+$total_result = $conn->query($total_query);
+$total_data = $total_result->fetch_assoc()['total'];
+$total_pages = ceil($total_data / $limit);
+
+// Ambil data rooms dengan filter, limit dan offset
+if ($filter == 'all') {
+    $query = "SELECT * FROM room ORDER BY id_room DESC LIMIT $limit OFFSET $offset";
+} else {
+    $query = "SELECT * FROM room WHERE type_room = '$filter' ORDER BY id_room DESC LIMIT $limit OFFSET $offset";
+}
+
 $rooms = $conn->query($query);
 
 // Alert handler (letakkan di atas <!DOCTYPE html>)
@@ -163,6 +179,13 @@ if (isset($_SESSION['alert'])) {
                                     </div>
                                 </div>
                                 <div class="card-content">
+                                    <!-- Info pagination -->
+                                    <div class="px-4 py-2">
+                                        <medium class="text-muted">
+                                            Menampilkan <?php echo min($offset + 1, $total_data); ?> - <?php echo min($offset + $limit, $total_data); ?> dari <?php echo $total_data; ?> data
+                                        </medium>
+                                    </div>
+                                    
                                     <div class="table-responsive">
                                         <table class="table table-striped mb-0">
                                             <thead>
@@ -179,7 +202,7 @@ if (isset($_SESSION['alert'])) {
                                             <tbody>
                                             <?php if ($rooms->num_rows > 0): ?>
                                                 <?php 
-                                                $no = 1;
+                                                $no = $offset + 1; // Mulai nomor sesuai halaman
                                                 while ($row = $rooms->fetch_assoc()) { ?>
                                                     <tr>
                                                         <td><?php echo $no++; ?></td>
@@ -279,25 +302,86 @@ if (isset($_SESSION['alert'])) {
                                                 <?php } ?>
                                             <?php else: ?>
                                                 <tr>
-                                                    <td colspan="7" class="text-center">
-                                                        <div class="py-4">
-                                                            <i class="fas fa-bed fa-3x text-muted mb-3"></i>
-                                                            <p class="text-muted">
-                                                                <?php 
-                                                                if ($filter == 'all') {
-                                                                    echo 'Tidak ada data room';
-                                                                } else {
-                                                                    echo 'Tidak ada room dengan tipe ' . ucfirst($filter);
-                                                                }
-                                                                ?>
-                                                            </p>
-                                                        </div>
-                                                    </td>
+<td colspan="7" class="text-center">
+    <div class="py-4">
+        <i class="fas fa-bed fa-3x text-muted mb-3"></i>
+        <p class="text-muted">
+            <?php 
+            if ($filter == 'all') {
+                echo 'Tidak ada data room';
+            } else {
+                echo 'Tidak ada room dengan tipe ' . ucfirst($filter);
+            }
+            ?>
+        </p>
+    </div>
+</td>
+
                                                 </tr>
                                             <?php endif; ?>
                                             </tbody>
                                         </table>
                                     </div>
+                                    
+                                    <!-- Pagination -->
+                                    <?php if ($total_pages > 1): ?>
+                                    <div class="d-flex justify-content-between align-items-center px-4 py-3">
+                                        <div>
+                                            <small class="text-muted">Halaman <?php echo $page; ?> dari <?php echo $total_pages; ?></small>
+                                        </div>
+                                        <nav aria-label="Page navigation">
+                                            <ul class="pagination pagination-sm mb-0">
+                                                <!-- Previous Button -->
+                                                <li class="page-item <?php echo ($page <= 1) ? 'disabled' : ''; ?>">
+                                                    <a class="page-link text-primary" href="<?php echo ($page <= 1) ? '#' : '?page=' . ($page - 1); ?>" 
+                                                       <?php echo ($page <= 1) ? 'tabindex="-1" aria-disabled="true"' : ''; ?>>
+                                                        <i class="bi bi-chevron-left"></i>
+                                                    </a>
+                                                </li>
+                                                
+                                                <!-- Page Numbers -->
+                                                <?php
+                                                $start_page = max(1, $page - 2);
+                                                $end_page = min($total_pages, $page + 2);
+                                                
+                                                // Tampilkan halaman pertama jika tidak termasuk dalam range
+                                                if ($start_page > 1) {
+                                                    echo '<li class="page-item"><a class="page-link text-primary" href="?page=1">1</a></li>';
+                                                    if ($start_page > 2) {
+                                                        echo '<li class="page-item disabled"><span class="page-link text-muted">...</span></li>';
+                                                    }
+                                                }
+                                                
+                                                // Tampilkan range halaman
+                                                for ($i = $start_page; $i <= $end_page; $i++) {
+                                                    $active = ($i == $page) ? 'active' : '';
+                                                    if ($active) {
+                                                        echo '<li class="page-item active"><a class="page-link bg-primary text-white" href="?page=' . $i . '">' . $i . '</a></li>';
+                                                    } else {
+                                                        echo '<li class="page-item"><a class="page-link text-primary" href="?page=' . $i . '">' . $i . '</a></li>';
+                                                    }
+                                                }
+                                                
+                                                // Tampilkan halaman terakhir jika tidak termasuk dalam range
+                                                if ($end_page < $total_pages) {
+                                                    if ($end_page < $total_pages - 1) {
+                                                        echo '<li class="page-item disabled"><span class="page-link text-muted">...</span></li>';
+                                                    }
+                                                    echo '<li class="page-item"><a class="page-link text-primary" href="?page=' . $total_pages . '">' . $total_pages . '</a></li>';
+                                                }
+                                                ?>
+                                                
+                                                <!-- Next Button -->
+                                                <li class="page-item <?php echo ($page >= $total_pages) ? 'disabled' : ''; ?>">
+                                                    <a class="page-link text-primary" href="<?php echo ($page >= $total_pages) ? '#' : '?page=' . ($page + 1); ?>"
+                                                       <?php echo ($page >= $total_pages) ? 'tabindex="-1" aria-disabled="true"' : ''; ?>>
+                                                        <i class="bi bi-chevron-right"></i>
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </nav>
+                                    </div>
+                                    <?php endif; ?>
                                 </div>
                             </div>
                         </div>
@@ -331,7 +415,8 @@ if (isset($_SESSION['alert'])) {
                     cancelButtonText: 'Batal'
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        window.location.href = 'deleteRoom.php?id_room=' + id;
+                        // Redirect dengan mempertahankan halaman saat ini
+                        window.location.href = 'deleteRoom.php?id_room=' + id + '&page=<?php echo $page; ?>';
                     }
                 });
             }

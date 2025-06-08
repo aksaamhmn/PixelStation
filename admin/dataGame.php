@@ -1,7 +1,6 @@
 <?php
 session_start();
 
-
 if (!isset($_SESSION['logged_in'])) {
     header('location: adminLogin.php');
     exit;
@@ -9,8 +8,19 @@ if (!isset($_SESSION['logged_in'])) {
 include ('./layout/sidebar.php');
 include '../server/connection.php';
 
-// Ambil data games untuk ditampilkan di tabel
-$query = "SELECT * FROM games";
+// Pagination setup
+$limit = 10; // Jumlah data per halaman
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+$offset = ($page - 1) * $limit;
+
+// Hitung total data
+$total_query = "SELECT COUNT(*) as total FROM games";
+$total_result = $conn->query($total_query);
+$total_data = $total_result->fetch_assoc()['total'];
+$total_pages = ceil($total_data / $limit);
+
+// Ambil data games dengan limit dan offset
+$query = "SELECT * FROM games LIMIT $limit OFFSET $offset";
 $games = $conn->query($query);
 
 // Alert handler (letakkan di atas <!DOCTYPE html>)
@@ -165,6 +175,13 @@ if (isset($_SESSION['alert'])) {
                                     </div>
                                 </div>
                                 <div class="card-content">
+                                    <!-- Info pagination -->
+                                    <div class="px-4 py-2">
+                                        <medium class="text-muted">
+                                            Menampilkan <?php echo min($offset + 1, $total_data); ?> - <?php echo min($offset + $limit, $total_data); ?> dari <?php echo $total_data; ?> data
+                                        </medium>
+                                    </div>
+                                    
                                     <div class="table-responsive">
                                         <table class="table table-striped mb-0">
                                             <thead>
@@ -181,7 +198,7 @@ if (isset($_SESSION['alert'])) {
                                             <tbody>
                                             <?php if ($games->num_rows > 0): ?>
                                                 <?php 
-                                                $no = 1;
+                                                $no = $offset + 1; // Mulai nomor sesuai halaman
                                                 while ($row = $games->fetch_assoc()) { ?>
                                                     <tr>
                                                         <td><?php echo $no++; ?></td>
@@ -209,7 +226,6 @@ if (isset($_SESSION['alert'])) {
                                                                 onclick="praDelete(<?php echo $row['id_game']; ?>)">
                                                                 Delete
                                                             </button>
-                                                            
                                                         </td>
                                                     </tr>
 
@@ -283,6 +299,66 @@ if (isset($_SESSION['alert'])) {
                                             </tbody>
                                         </table>
                                     </div>
+                                    
+                                    <!-- Pagination -->
+                                    <?php if ($total_pages > 1): ?>
+                                    <div class="d-flex justify-content-between align-items-center px-4 py-3">
+                                        <div>
+                                            <small class="text-muted">Halaman <?php echo $page; ?> dari <?php echo $total_pages; ?></small>
+                                        </div>
+                                        <nav aria-label="Page navigation">
+                                            <ul class="pagination pagination-sm mb-0">
+                                                <!-- Previous Button -->
+                                                <li class="page-item <?php echo ($page <= 1) ? 'disabled' : ''; ?>">
+                                                    <a class="page-link text-primary" href="<?php echo ($page <= 1) ? '#' : '?page=' . ($page - 1); ?>" 
+                                                       <?php echo ($page <= 1) ? 'tabindex="-1" aria-disabled="true"' : ''; ?>>
+                                                        <i class="bi bi-chevron-left"></i>
+                                                    </a>
+                                                </li>
+                                                
+                                                <!-- Page Numbers -->
+                                                <?php
+                                                $start_page = max(1, $page - 2);
+                                                $end_page = min($total_pages, $page + 2);
+                                                
+                                                // Tampilkan halaman pertama jika tidak termasuk dalam range
+                                                if ($start_page > 1) {
+                                                    echo '<li class="page-item"><a class="page-link text-primary" href="?page=1">1</a></li>';
+                                                    if ($start_page > 2) {
+                                                        echo '<li class="page-item disabled"><span class="page-link text-muted">...</span></li>';
+                                                    }
+                                                }
+                                                
+                                                // Tampilkan range halaman
+                                                for ($i = $start_page; $i <= $end_page; $i++) {
+                                                    $active = ($i == $page) ? 'active' : '';
+                                                    if ($active) {
+                                                        echo '<li class="page-item active"><a class="page-link bg-primary text-white" href="?page=' . $i . '">' . $i . '</a></li>';
+                                                    } else {
+                                                        echo '<li class="page-item"><a class="page-link text-primary" href="?page=' . $i . '">' . $i . '</a></li>';
+                                                    }
+                                                }
+                                                
+                                                // Tampilkan halaman terakhir jika tidak termasuk dalam range
+                                                if ($end_page < $total_pages) {
+                                                    if ($end_page < $total_pages - 1) {
+                                                        echo '<li class="page-item disabled"><span class="page-link text-muted">...</span></li>';
+                                                    }
+                                                    echo '<li class="page-item"><a class="page-link text-primary" href="?page=' . $total_pages . '">' . $total_pages . '</a></li>';
+                                                }
+                                                ?>
+                                                
+                                                <!-- Next Button -->
+                                                <li class="page-item <?php echo ($page >= $total_pages) ? 'disabled' : ''; ?>">
+                                                    <a class="page-link text-primary" href="<?php echo ($page >= $total_pages) ? '#' : '?page=' . ($page + 1); ?>"
+                                                       <?php echo ($page >= $total_pages) ? 'tabindex="-1" aria-disabled="true"' : ''; ?>>
+                                                        <i class="bi bi-chevron-right"></i>
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </nav>
+                                    </div>
+                                    <?php endif; ?>
                                 </div>
                             </div>
                         </div>
@@ -290,9 +366,9 @@ if (isset($_SESSION['alert'])) {
                 </section>
                 <!-- Striped rows end -->
 
-                  <?php
-            include ('./layout/adminFooter.php');
-            ?>
+                <?php
+                include ('./layout/adminFooter.php');
+                ?>
             </div>
         </div>
         <script src="../dist/assets/static/js/components/dark.js"></script>
@@ -305,36 +381,23 @@ if (isset($_SESSION['alert'])) {
         <script src="../dist/assets/static/js/pages/dashboard.js"></script>
         <script>
             function praDelete(id) {
-            Swal.fire({
-                title: 'Yakin ingin menghapus data game ini?',
-                text: 'Data yang dihapus tidak dapat dikembalikan!',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Ya, hapus!',
-                cancelButtonText: 'Batal'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                window.location.href = 'deleteGame.php?id_game=' + id;
-                }
-            });
+                Swal.fire({
+                    title: 'Yakin ingin menghapus data game ini?',
+                    text: 'Data yang dihapus tidak dapat dikembalikan!',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Ya, hapus!',
+                    cancelButtonText: 'Batal'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Redirect dengan mempertahankan halaman saat ini
+                        window.location.href = 'deleteGame.php?id_game=' + id + '&page=<?php echo $page; ?>';
+                    }
+                });
             }
         </script>
 </body>
 
 </html>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        var modalChange = document.getElementById('modalChange');
-
-        modalChange.addEventListener('show.bs.modal', function(event) {
-            var button = event.relatedTarget;
-            var id_reservasi = button.getAttribute('data-id');
-
-            document.getElementById('customerId').value = id_reservasi;
-        });
-    });
-
-</script>
