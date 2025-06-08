@@ -57,6 +57,13 @@ function displayStars($rating) {
     }
     return $stars;
 }
+
+// Function untuk menghitung jumlah review per rating
+function countReviewsByRating($reviews, $rating) {
+    return count(array_filter($reviews, function($r) use ($rating) { 
+        return $r['rating'] == $rating; 
+    }));
+}
 ?>
 
 <!DOCTYPE html>
@@ -95,6 +102,25 @@ function displayStars($rating) {
         .reservation-info {
             font-size: 0.9em;
             color: #6c757d;
+        }
+        .filter-buttons {
+            margin: 20px 0;
+        }
+        .filter-btn {
+            margin: 5px;
+            transition: all 0.3s ease;
+        }
+        .filter-btn.active {
+            background-color: #007bff;
+            color: white;
+            transform: scale(1.05);
+        }
+        .filter-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        .hidden {
+            display: none !important;
         }
     </style>
 </head>
@@ -179,6 +205,28 @@ function displayStars($rating) {
                     </div>
                 </div>
 
+                <!-- Filter Buttons -->
+                <div class="filter-buttons text-center">
+                    <h5 class="mb-3">Filter by Rating</h5>
+                    <button class="btn btn-outline-primary filter-btn active" onclick="filterReviews(0)">
+                        <i class="bi bi-list"></i> All Reviews
+                        <span class="badge bg-primary ms-2"><?= count($reviews) ?></span>
+                    </button>
+                    <?php for($i = 5; $i >= 1; $i--): ?>
+                        <button class="btn btn-outline-warning filter-btn" onclick="filterReviews(<?= $i ?>)">
+                            <?php for($j = 1; $j <= $i; $j++): ?>
+                                <i class="bi bi-star-fill"></i>
+                            <?php endfor; ?>
+                            <?php if($i < 5): ?>
+                                <?php for($j = $i + 1; $j <= 5; $j++): ?>
+                                    <i class="bi bi-star text-muted"></i>
+                                <?php endfor; ?>
+                            <?php endif; ?>
+                            <span class="badge bg-warning ms-2"><?= countReviewsByRating($reviews, $i) ?></span>
+                        </button>
+                    <?php endfor; ?>
+                </div>
+
                 <section class="section">
                     <?php if (empty($reviews)): ?>
                         <div class="row">
@@ -193,9 +241,9 @@ function displayStars($rating) {
                             </div>
                         </div>
                     <?php else: ?>
-                        <div class="row">
+                        <div class="row" id="reviewsContainer">
                             <?php foreach ($reviews as $review): ?>
-                                <div class="col-md-6 col-lg-4 mb-4">
+                                <div class="col-md-6 col-lg-4 mb-4 review-item" data-rating="<?= $review['rating'] ?>">
                                     <div class="card review-card h-100">
                                         <div class="card-header">
                                             <div class="d-flex justify-content-between align-items-center">
@@ -263,6 +311,19 @@ function displayStars($rating) {
                                 </div>
                             <?php endforeach; ?>
                         </div>
+                        
+                        <!-- No Results Message (initially hidden) -->
+                        <div class="row hidden" id="noResultsMessage">
+                            <div class="col-12">
+                                <div class="card">
+                                    <div class="card-body text-center py-5">
+                                        <i class="bi bi-search display-1 text-muted"></i>
+                                        <h4 class="mt-3">No Reviews Found</h4>
+                                        <p class="text-muted">No reviews found for the selected rating filter.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     <?php endif; ?>
                 </section>
 
@@ -299,6 +360,38 @@ function displayStars($rating) {
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
     <script>
+        function filterReviews(rating) {
+            const reviewItems = document.querySelectorAll('.review-item');
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            const noResultsMessage = document.getElementById('noResultsMessage');
+            let visibleCount = 0;
+            
+            // Remove active class from all buttons
+            filterButtons.forEach(btn => btn.classList.remove('active'));
+            
+            // Add active class to clicked button
+            event.target.classList.add('active');
+            
+            // Show/hide reviews based on rating
+            reviewItems.forEach(item => {
+                const itemRating = parseInt(item.getAttribute('data-rating'));
+                
+                if (rating === 0 || itemRating === rating) {
+                    item.classList.remove('hidden');
+                    visibleCount++;
+                } else {
+                    item.classList.add('hidden');
+                }
+            });
+            
+            // Show/hide no results message
+            if (visibleCount === 0) {
+                noResultsMessage.classList.remove('hidden');
+            } else {
+                noResultsMessage.classList.add('hidden');
+            }
+        }
+        
         function viewDetailReview(reviewId) {
             // Find the button that triggered the modal
             const button = document.querySelector(`[onclick="viewDetailReview('${reviewId}')"]`);
