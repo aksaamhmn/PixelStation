@@ -75,6 +75,28 @@ if (isset($_SESSION['alert'])) {
     <link rel="stylesheet" href="../dist/assets/compiled/css/app.css">
     <link rel="stylesheet" href="../dist/assets/compiled/css/app-dark.css">
     <script src="https://kit.fontawesome.com/5f166431bc.js" crossorigin="anonymous"></script>
+    <style>
+        @media (max-width: 768px) {
+            .filter-container {
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                gap: 10px;
+            }
+            .filter-container label {
+                margin-bottom: 5px !important;
+                margin-right: 0 !important;
+            }
+            .filter-container select {
+                width: 100% !important;
+                max-width: 200px;
+            }
+        }
+        @media (max-width: 576px) {
+            .filter-container select {
+                max-width: 100%;
+            }
+        }
+    </style>
 </head>
 
 <body>
@@ -109,26 +131,9 @@ if (isset($_SESSION['alert'])) {
                         <div class="col-12">
                             <div class="card">
                                 <div class="card-header d-flex justify-content-between align-items-center">
-                                    <div class="d-flex align-items-center">
-                                        <h4 class="card-title me-3">Rooms Table</h4>
-                                        <!-- Filter Buttons -->
-                                        <div class="btn-group" role="group" aria-label="Filter Room Type">
-                                            <button type="button" class="btn btn-outline-primary <?php echo ($filter == 'all') ? 'active' : ''; ?>" onclick="filterRooms('all')">
-                                                <i class="fas fa-list"></i> All Rooms
-                                            </button>
-                                            <button type="button" class="btn btn-outline-success <?php echo ($filter == 'reguler') ? 'active' : ''; ?>" onclick="filterRooms('reguler')">
-                                                <i class="fas fa-home"></i> Reguler
-                                            </button>
-                                            <button type="button" class="btn btn-outline-warning <?php echo ($filter == 'vip') ? 'active' : ''; ?>" onclick="filterRooms('vip')">
-                                                <i class="fas fa-crown"></i> VIP
-                                            </button>
-                                            <button type="button" class="btn btn-outline-danger <?php echo ($filter == 'private') ? 'active' : ''; ?>" onclick="filterRooms('private')">
-                                                <i class="fas fa-lock"></i> Private
-                                            </button>
-                                        </div>
-                                    </div>
+                                    <h4 class="card-title">Rooms Table</h4>
                                     <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalAddRooms">
-                                        <i class="bi bi-plus"></i> Add Room
+                                        <i class="bi bi-plus"></i>
                                     </button>
 
                                     <!-- Modal Tambah Data Room -->
@@ -178,11 +183,28 @@ if (isset($_SESSION['alert'])) {
                                         </div>
                                     </div>
                                 </div>
+
+                                <!-- Filter Dropdown - Responsive -->
+                                <div class="card-header border-0 pb-0">
+                                    <div class="d-flex align-items-center filter-container">
+                                        <label for="roomTypeFilter" class="form-label me-2 mb-0 text-nowrap">Filter berdasarkan Tipe:</label>
+                                        <select class="form-select form-select-sm" id="roomTypeFilter" style="min-width: 150px; max-width: 200px;" onchange="filterRooms(this.value)">
+                                            <option value="all" <?php echo ($filter == 'all') ? 'selected' : ''; ?>>All Rooms</option>
+                                            <option value="reguler" <?php echo ($filter == 'reguler') ? 'selected' : ''; ?>>Reguler</option>
+                                            <option value="vip" <?php echo ($filter == 'vip') ? 'selected' : ''; ?>>VIP</option>
+                                            <option value="private" <?php echo ($filter == 'private') ? 'selected' : ''; ?>>Private</option>
+                                        </select>
+                                    </div>
+                                </div>
+
                                 <div class="card-content">
                                     <!-- Info pagination -->
                                     <div class="px-4 py-2">
                                         <medium class="text-muted">
                                             Menampilkan <?php echo min($offset + 1, $total_data); ?> - <?php echo min($offset + $limit, $total_data); ?> dari <?php echo $total_data; ?> data
+                                            <?php if ($filter != 'all'): ?>
+                                                (difilter berdasarkan <?php echo ucfirst($filter); ?>)
+                                            <?php endif; ?>
                                         </medium>
                                     </div>
                                     
@@ -302,21 +324,20 @@ if (isset($_SESSION['alert'])) {
                                                 <?php } ?>
                                             <?php else: ?>
                                                 <tr>
-<td colspan="7" class="text-center">
-    <div class="py-4">
-        <i class="fas fa-bed fa-3x text-muted mb-3"></i>
-        <p class="text-muted">
-            <?php 
-            if ($filter == 'all') {
-                echo 'Tidak ada data room';
-            } else {
-                echo 'Tidak ada room dengan tipe ' . ucfirst($filter);
-            }
-            ?>
-        </p>
-    </div>
-</td>
-
+                                                    <td colspan="7" class="text-center">
+                                                        <div class="py-4">
+                                                            <i class="fas fa-bed fa-3x text-muted mb-3"></i>
+                                                            <p class="text-muted">
+                                                                <?php 
+                                                                if ($filter == 'all') {
+                                                                    echo 'Tidak ada data room';
+                                                                } else {
+                                                                    echo 'Tidak ada room dengan tipe ' . ucfirst($filter);
+                                                                }
+                                                                ?>
+                                                            </p>
+                                                        </div>
+                                                    </td>
                                                 </tr>
                                             <?php endif; ?>
                                             </tbody>
@@ -333,7 +354,7 @@ if (isset($_SESSION['alert'])) {
                                             <ul class="pagination pagination-sm mb-0">
                                                 <!-- Previous Button -->
                                                 <li class="page-item <?php echo ($page <= 1) ? 'disabled' : ''; ?>">
-                                                    <a class="page-link text-primary" href="<?php echo ($page <= 1) ? '#' : '?page=' . ($page - 1); ?>" 
+                                                    <a class="page-link text-primary" href="<?php echo ($page <= 1) ? '#' : '?page=' . ($page - 1) . ($filter != 'all' ? '&filter=' . $filter : ''); ?>" 
                                                        <?php echo ($page <= 1) ? 'tabindex="-1" aria-disabled="true"' : ''; ?>>
                                                         <i class="bi bi-chevron-left"></i>
                                                     </a>
@@ -346,7 +367,7 @@ if (isset($_SESSION['alert'])) {
                                                 
                                                 // Tampilkan halaman pertama jika tidak termasuk dalam range
                                                 if ($start_page > 1) {
-                                                    echo '<li class="page-item"><a class="page-link text-primary" href="?page=1">1</a></li>';
+                                                    echo '<li class="page-item"><a class="page-link text-primary" href="?page=1' . ($filter != 'all' ? '&filter=' . $filter : '') . '">1</a></li>';
                                                     if ($start_page > 2) {
                                                         echo '<li class="page-item disabled"><span class="page-link text-muted">...</span></li>';
                                                     }
@@ -356,9 +377,9 @@ if (isset($_SESSION['alert'])) {
                                                 for ($i = $start_page; $i <= $end_page; $i++) {
                                                     $active = ($i == $page) ? 'active' : '';
                                                     if ($active) {
-                                                        echo '<li class="page-item active"><a class="page-link bg-primary text-white" href="?page=' . $i . '">' . $i . '</a></li>';
+                                                        echo '<li class="page-item active"><a class="page-link bg-primary text-white" href="?page=' . $i . ($filter != 'all' ? '&filter=' . $filter : '') . '">' . $i . '</a></li>';
                                                     } else {
-                                                        echo '<li class="page-item"><a class="page-link text-primary" href="?page=' . $i . '">' . $i . '</a></li>';
+                                                        echo '<li class="page-item"><a class="page-link text-primary" href="?page=' . $i . ($filter != 'all' ? '&filter=' . $filter : '') . '">' . $i . '</a></li>';
                                                     }
                                                 }
                                                 
@@ -367,13 +388,13 @@ if (isset($_SESSION['alert'])) {
                                                     if ($end_page < $total_pages - 1) {
                                                         echo '<li class="page-item disabled"><span class="page-link text-muted">...</span></li>';
                                                     }
-                                                    echo '<li class="page-item"><a class="page-link text-primary" href="?page=' . $total_pages . '">' . $total_pages . '</a></li>';
+                                                    echo '<li class="page-item"><a class="page-link text-primary" href="?page=' . $total_pages . ($filter != 'all' ? '&filter=' . $filter : '') . '">' . $total_pages . '</a></li>';
                                                 }
                                                 ?>
                                                 
                                                 <!-- Next Button -->
                                                 <li class="page-item <?php echo ($page >= $total_pages) ? 'disabled' : ''; ?>">
-                                                    <a class="page-link text-primary" href="<?php echo ($page >= $total_pages) ? '#' : '?page=' . ($page + 1); ?>"
+                                                    <a class="page-link text-primary" href="<?php echo ($page >= $total_pages) ? '#' : '?page=' . ($page + 1) . ($filter != 'all' ? '&filter=' . $filter : ''); ?>"
                                                        <?php echo ($page >= $total_pages) ? 'tabindex="-1" aria-disabled="true"' : ''; ?>>
                                                         <i class="bi bi-chevron-right"></i>
                                                     </a>
@@ -415,33 +436,26 @@ if (isset($_SESSION['alert'])) {
                     cancelButtonText: 'Batal'
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        // Redirect dengan mempertahankan halaman saat ini
-                        window.location.href = 'deleteRoom.php?id_room=' + id + '&page=<?php echo $page; ?>';
+                        // Redirect dengan mempertahankan halaman dan filter saat ini
+                        var currentFilter = '<?php echo $filter; ?>';
+                        var currentPage = '<?php echo $page; ?>';
+                        var url = 'deleteRoom.php?id_room=' + id + '&page=' + currentPage;
+                        if (currentFilter !== 'all') {
+                            url += '&filter=' + currentFilter;
+                        }
+                        window.location.href = url;
                     }
                 });
             }
 
             function filterRooms(type) {
-                // Show loading effect
-                Swal.fire({
-                    title: 'Loading...',
-                    text: 'Memfilter data room',
-                    allowOutsideClick: false,
-                    didOpen: () => {
-                        Swal.showLoading();
-                    }
-                });
-
-                // Redirect with filter parameter
-                window.location.href = '?filter=' + type;
-            }
-
-            // Auto close loading if present
-            document.addEventListener('DOMContentLoaded', function() {
-                if (Swal.isLoading()) {
-                    Swal.close();
+                // Redirect langsung tanpa loading/preloader
+                if (type === 'all') {
+                    window.location.href = '?';
+                } else {
+                    window.location.href = '?filter=' + type;
                 }
-            });
+            }
         </script>
 </body>
 
