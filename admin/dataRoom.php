@@ -133,7 +133,7 @@ if (isset($_SESSION['alert'])) {
                                 <div class="card-header d-flex justify-content-between align-items-center">
                                     <h4 class="card-title">Rooms Table</h4>
                                     <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalAddRooms">
-                                        <i class="bi bi-plus"></i>
+                                        <i class="fas fa-plus me-1"></i>Tambah Room
                                     </button>
 
                                     <!-- Modal Tambah Data Room -->
@@ -259,13 +259,13 @@ if (isset($_SESSION['alert'])) {
                                                                 class="btn btn-sm btn-warning me-1" 
                                                                 data-bs-toggle="modal" 
                                                                 data-bs-target="#modalEditRoom<?php echo $row['id_room']; ?>">
-                                                                Edit
+                                                                <i class="fas fa-edit"></i>
                                                             </button>
                                                             <button 
                                                                 type="button" 
                                                                 class="btn btn-sm btn-danger"
                                                                 onclick="praDelete(<?php echo $row['id_room']; ?>)">
-                                                                Delete
+                                                                <i class="fas fa-trash"></i>
                                                             </button>
                                                         </td>
                                                     </tr>

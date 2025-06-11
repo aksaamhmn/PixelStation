@@ -313,7 +313,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['reject_payment'])) {
                                                                         data-payment-id="<?= isset($reservation['payment_id']) ? $reservation['payment_id'] : '' ?>"
                                                                         data-payment-proof="<?= isset($reservation['payment_proof']) ? $reservation['payment_proof'] : '' ?>"
                                                                         data-payment-date="<?= isset($reservation['payment_date']) ? formatDate($reservation['payment_date']) : '' ?>">
-                                                                    <i class="bi bi-eye"></i> Detail
+                                                                    <i class="fas fa-eye"></i> 
                                                                 </button>
                                                                 
                                                                 <?php if (isset($reservation['payment_status']) && $reservation['payment_status'] == 'pending'): ?>
@@ -324,7 +324,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['reject_payment'])) {
                                                                         data-nama="<?= htmlspecialchars($reservation['customer_name']) ?>"
                                                                         data-id-reservasi="<?= $reservation['id_reservasi'] ?>"
                                                                         data-payment-proof="<?= isset($reservation['payment_proof']) ? $reservation['payment_proof'] : '' ?>">
-                                                                    <i class="bi bi-check-circle"></i> Konfirmasi
+                                                                    <i class="fas fa-check"></i>
                                                                 </button>
                                                                 <?php endif; ?>
                                                             </td>
