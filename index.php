@@ -39,6 +39,21 @@ ORDER BY rv.created_at DESC");
     echo "<script>console.error('Error query: " . $e->getMessage() . "');</script>";
 }
 
+// Query untuk mengambil data trending games
+$trending_games = [];
+try {
+    $stmt = $conn->prepare("SELECT id, nama, gambar FROM trending_games ORDER BY id ASC");
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    while ($row = $result->fetch_assoc()) {
+        $trending_games[] = $row;
+    }
+    $stmt->close();
+} catch (Exception $e) {
+    echo "<script>console.error('Error trending games query: " . $e->getMessage() . "');</script>";
+}
+
 // Function untuk menampilkan bintang rating
 function displayStars($rating) {
     $stars = '';
@@ -104,8 +119,6 @@ function displayStars($rating) {
     </div>
   </div>
 
-
-
   <div class="features">
     <div class="container">
       <div class="row">
@@ -157,7 +170,7 @@ function displayStars($rating) {
     </div>
   </div>
 
-  <!-- Trending Section -->
+  <!-- Trending Section - UPDATED TO DYNAMIC WITHOUT LOOP AND WITHOUT NAV BUTTONS -->
   <div class="section trending">
     <div class="container">
       <div class="row">
@@ -170,21 +183,26 @@ function displayStars($rating) {
         <div class="w-full h-screen flex items-center justify-center bg-gray-100">
           <div class="swiper mySwiper w-full max-w-6xl px-4">
             <div class="swiper-wrapper">
-              <div class="swiper-slide">
-                <img src="./assets/images/gta.avif" class="rounded-xl w-full h-auto object-cover" />
-              </div>
-              <div class="swiper-slide">
-                <img src="./assets/images/fifa.avif" class="rounded-xl w-full h-auto object-cover" />
-              </div>
-              <div class="swiper-slide">
-                <img src="./assets/images/wuwa.avif" class="rounded-xl w-full h-auto object-cover" />
-              </div>
-              <div class="swiper-slide">
-                <img src="./assets/images/nba.avif" class="rounded-xl w-full h-auto object-cover" />
-              </div>
-              <div class="swiper-slide">
-                <img src="./assets/images/genshin.avif" class="rounded-xl w-full h-auto object-cover" />
-              </div>
+              <?php if (!empty($trending_games)): ?>
+                <?php foreach ($trending_games as $game): ?>
+                  <div class="swiper-slide">
+                    <img src="./assets/images/<?= htmlspecialchars($game['gambar']) ?>" 
+                         alt="<?= htmlspecialchars($game['nama']) ?>" 
+                         class="rounded-xl w-full h-auto object-cover"
+                         title="<?= htmlspecialchars($game['nama']) ?>" />
+                  </div>
+                <?php endforeach; ?>
+              <?php else: ?>
+                <!-- Fallback jika tidak ada data trending games -->
+                <div class="swiper-slide">
+                  <div class="d-flex align-items-center justify-content-center bg-light rounded-xl" style="height: 300px;">
+                    <div class="text-center text-muted">
+                      <i class="fas fa-gamepad fa-3x mb-3"></i>
+                      <p>No trending games available</p>
+                    </div>
+                  </div>
+                </div>
+              <?php endif; ?>
             </div>
             <div class="swiper-pagination mt-4"></div>
           </div>
@@ -440,6 +458,7 @@ function displayStars($rating) {
       margin-top: 24px;
     }
   </style>
+  
   <script>
     document.addEventListener("DOMContentLoaded", function() {
       const totalSlides = document.querySelectorAll('.mySwiper .swiper-slide').length;

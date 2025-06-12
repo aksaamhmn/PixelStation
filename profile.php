@@ -95,6 +95,7 @@
         $stmt = $conn->prepare("SELECT
     r.id_reservasi,
     r.reservation_date,
+    r.keterangan_penolakan,
     rm.section_room,
     rm.type_room,
     r.start_time,
@@ -284,13 +285,25 @@ ORDER BY r.reservation_date DESC;
                                                         Beri Rating
                                                     </button>
                                                 </div>
+                                            <?php elseif ($order['payment_status'] == 'rejected'): ?>
+                                                <div class="alert alert-danger mt-3">
+                                                    <h6 class="mb-2"><i class="fas fa-exclamation-triangle"></i> Pembayaran Ditolak</h6>
+                                                    <?php if (!empty($order['keterangan_penolakan'])): ?>
+                                                        <p class="mb-2 small"><strong>Alasan:</strong> <?= htmlspecialchars($order['keterangan_penolakan']) ?></p>
+                                                    <?php endif; ?>
+                                                    <p class="mb-0 small">
+                                                        <i class="fas fa-phone"></i> Silakan hubungi 
+                                                        <a href="https://wa.me/6282123456789" target="_blank" class="text-decoration-none">
+                                                            <strong>+6282123456789</strong>
+                                                        </a> 
+                                                        (admin) untuk informasi lebih lanjut
+                                                    </p>
+                                                </div>
                                             <?php else: ?>
-                                                <!-- Pesan jika pembayaran belum dikonfirmasi atau ditolak -->
+                                                <!-- Pesan jika pembayaran belum dikonfirmasi -->
                                                 <div class="alert alert-info mt-3">
                                                     <?php if ($order['payment_status'] == 'pending'): ?>
                                                         <small><i class="fas fa-info-circle"></i> Review dapat diberikan setelah pembayaran dikonfirmasi admin</small>
-                                                    <?php elseif ($order['payment_status'] == 'rejected'): ?>
-                                                        <small><i class="fas fa-times-circle"></i> Pembayaran ditolak. Silakan hubungi admin</small>
                                                     <?php elseif ($order['payment_status'] == 'confirmed'): ?>
                                                         <small><i class="fas fa-info-circle"></i> Review dapat diberikan setelah anda bermain</small>
                                                     <?php else: ?>
