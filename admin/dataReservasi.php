@@ -34,6 +34,7 @@ try {
     r.reservation_date,
     r.start_time,
     r.end_time,
+    r.keterangan_penolakan,
     rm.section_room,
     rm.type_room,
     p.payment_status,
@@ -116,18 +117,30 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['confirm_payment'])) {
 // Process payment rejection if form is submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['reject_payment'])) {
     $payment_id = $_POST['payment_id'];
+    $reservation_id = $_POST['reservation_id'];
+    $reject_reason = $_POST['reject_reason'];
+    
     try {
-        $updateStmt = $conn->prepare("UPDATE payments SET payment_status = 'rejected' WHERE id_payments = ?");
-        $updateStmt->bind_param("i", $payment_id);
-        $updateStmt->execute();
-        if ($updateStmt->affected_rows > 0) {
+        // Update payment status
+        $updatePaymentStmt = $conn->prepare("UPDATE payments SET payment_status = 'rejected' WHERE id_payments = ?");
+        $updatePaymentStmt->bind_param("i", $payment_id);
+        $updatePaymentStmt->execute();
+        
+        // Update reservation with rejection reason
+        $updateReservationStmt = $conn->prepare("UPDATE reservasi SET keterangan_penolakan = ? WHERE id_reservasi = ?");
+        $updateReservationStmt->bind_param("si", $reject_reason, $reservation_id);
+        $updateReservationStmt->execute();
+        
+        if ($updatePaymentStmt->affected_rows > 0 || $updateReservationStmt->affected_rows > 0) {
             $swalType = "info";
-            $swalMessage = "Pembayaran berhasil ditolak!";
+            $swalMessage = "Pembayaran berhasil ditolak dengan alasan!";
         } else {
             $swalType = "error";
             $swalMessage = "Gagal menolak pembayaran!";
         }
-        $updateStmt->close();
+        
+        $updatePaymentStmt->close();
+        $updateReservationStmt->close();
     } catch (Exception $e) {
         $swalType = "error";
         $swalMessage = "Error: " . $e->getMessage();
@@ -312,7 +325,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['reject_payment'])) {
                                                                         data-payment-status="<?= isset($reservation['payment_status']) ? $reservation['payment_status'] : 'unpaid' ?>"
                                                                         data-payment-id="<?= isset($reservation['payment_id']) ? $reservation['payment_id'] : '' ?>"
                                                                         data-payment-proof="<?= isset($reservation['payment_proof']) ? $reservation['payment_proof'] : '' ?>"
-                                                                        data-payment-date="<?= isset($reservation['payment_date']) ? formatDate($reservation['payment_date']) : '' ?>">
+                                                                        data-payment-date="<?= isset($reservation['payment_date']) ? formatDate($reservation['payment_date']) : '' ?>"
+                                                                        data-reject-reason="<?= htmlspecialchars($reservation['keterangan_penolakan']) ?>">
                                                                     <i class="fas fa-eye"></i> 
                                                                 </button>
                                                                 
@@ -321,6 +335,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['reject_payment'])) {
                                                                         data-bs-toggle="modal"
                                                                         data-bs-target="#confirmModal"
                                                                         data-payment-id="<?= $reservation['payment_id'] ?>"
+                                                                        data-reservation-id="<?= $reservation['id_reservasi'] ?>"
                                                                         data-nama="<?= htmlspecialchars($reservation['customer_name']) ?>"
                                                                         data-id-reservasi="<?= $reservation['id_reservasi'] ?>"
                                                                         data-payment-proof="<?= isset($reservation['payment_proof']) ? $reservation['payment_proof'] : '' ?>">
@@ -449,6 +464,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['reject_payment'])) {
                                     <label for="paymentDate" class="form-label">Tanggal Pembayaran</label>
                                     <input type="text" class="form-control" id="paymentDate" disabled>
                                 </div>
+                                <div class="mb-3 reject-reason" style="display: none;">
+                                    <label for="rejectReason" class="form-label">Alasan Penolakan</label>
+                                    <textarea class="form-control" id="rejectReason" rows="3" disabled></textarea>
+                                </div>
                                 <div class="mb-3 payment-proof" style="display: none;">
                                     <label class="form-label">Bukti Pembayaran</label>
                                     <div class="text-center">
@@ -482,6 +501,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['reject_payment'])) {
                                 </div>
                                 <form id="confirmForm" method="POST">
                                     <input type="hidden" name="payment_id" id="confirmPaymentId">
+                                    <input type="hidden" name="reservation_id" id="confirmReservationIdHidden">
                                 </form>
                             </div>
                             <div class="modal-footer">
@@ -492,6 +512,38 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['reject_payment'])) {
                         </div>
                     </div>
                 </div>
+
+                <!-- Modal Penolakan -->
+                <div class="modal fade" id="rejectModal" tabindex="-1" aria-labelledby="rejectModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h1 class="modal-title fs-5" id="rejectModalLabel">Tolak Pembayaran</h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p>Anda akan menolak pembayaran untuk reservasi dengan ID: <span id="rejectReservationId"></span></p>
+                                <p>Atas nama: <span id="rejectCustomerName"></span></p>
+                                <div class="mb-3">
+                                    <label for="rejectReasonInput" class="form-label">Alasan Penolakan <span class="text-danger">*</span></label>
+                                    <textarea class="form-control" id="rejectReasonInput" name="reject_reason" rows="4" 
+                                            placeholder="Masukkan alasan penolakan pembayaran..." required></textarea>
+                                    <div class="form-text">Alasan ini akan ditampilkan kepada customer.</div>
+                                </div>
+                                <form id="rejectForm" method="POST">
+                                    <input type="hidden" name="payment_id" id="rejectPaymentId">
+                                    <input type="hidden" name="reservation_id" id="rejectReservationIdHidden">
+                                    <input type="hidden" name="reject_reason" id="rejectReasonHidden">
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                                <button type="button" class="btn btn-danger" id="submitRejectButton">Tolak Pembayaran</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <?php include ('./layout/adminFooter.php'); ?>
             </div>
         </div>
@@ -503,6 +555,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['reject_payment'])) {
     document.addEventListener('DOMContentLoaded', function() {
         var detailModal = document.getElementById('detailModal');
         var confirmModal = document.getElementById('confirmModal');
+        var rejectModal = document.getElementById('rejectModal');
         
         // Detail modal handling
         detailModal.addEventListener('show.bs.modal', function(event) {
@@ -518,6 +571,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['reject_payment'])) {
             var paymentStatus = button.getAttribute('data-payment-status');
             var paymentDate = button.getAttribute('data-payment-date');
             var paymentProof = button.getAttribute('data-payment-proof');
+            var rejectReason = button.getAttribute('data-reject-reason');
 
             // Set values in modal
             detailModal.querySelector('#idReservasi').value = idReservasi;
@@ -537,9 +591,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['reject_payment'])) {
                                    "Belum Dibayar";
             
             detailModal.querySelector('#paymentStatus').value = paymentStatusText;
-            detailModal.querySelector('.payment-info').style.display = paymentStatus === 'confirmed' ? 'block' : 'none';
-            detailModal.querySelector('.payment-proof').style.display = paymentStatus === 'confirmed' ? 'block' : 'none';
+            detailModal.querySelector('.payment-info').style.display = (paymentStatus === 'confirmed' || paymentStatus === 'expired') ? 'block' : 'none';
+            detailModal.querySelector('.payment-proof').style.display = paymentStatus !== 'unpaid' ? 'block' : 'none';
             detailModal.querySelector('#paymentDate').value = paymentDate;
+
+            // Handle reject reason
+            if (paymentStatus === 'rejected' && rejectReason) {
+                detailModal.querySelector('.reject-reason').style.display = 'block';
+                detailModal.querySelector('#rejectReason').value = rejectReason;
+            } else {
+                detailModal.querySelector('.reject-reason').style.display = 'none';
+            }
 
             // Handle proof image
             var proofImage = detailModal.querySelector('#proofImage');
@@ -555,6 +617,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['reject_payment'])) {
         confirmModal.addEventListener('show.bs.modal', function(event) {
             var button = event.relatedTarget;
             confirmModal.querySelector('#confirmPaymentId').value = button.getAttribute('data-payment-id');
+            confirmModal.querySelector('#confirmReservationIdHidden').value = button.getAttribute('data-reservation-id');
             confirmModal.querySelector('#confirmReservationId').textContent = button.getAttribute('data-id-reservasi');
             confirmModal.querySelector('#confirmCustomerName').textContent = button.getAttribute('data-nama');
             
@@ -568,7 +631,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['reject_payment'])) {
             }
         });
 
-        // Handle confirm/reject buttons
+        // Handle confirm button
         document.getElementById('confirmButton').addEventListener('click', function() {
             var form = document.getElementById('confirmForm');
             var input = document.createElement("input");
@@ -579,14 +642,59 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['reject_payment'])) {
             form.submit();
         });
 
+        // Handle reject button - show reject modal
         document.getElementById('rejectButton').addEventListener('click', function() {
-            var form = document.getElementById('confirmForm');
+            // Get data from confirm modal
+            var paymentId = document.getElementById('confirmPaymentId').value;
+            var reservationId = document.getElementById('confirmReservationIdHidden').value;
+            var reservationIdText = document.getElementById('confirmReservationId').textContent;
+            var customerName = document.getElementById('confirmCustomerName').textContent;
+            
+            // Set data to reject modal
+            document.getElementById('rejectPaymentId').value = paymentId;
+            document.getElementById('rejectReservationIdHidden').value = reservationId;
+            document.getElementById('rejectReservationId').textContent = reservationIdText;
+            document.getElementById('rejectCustomerName').textContent = customerName;
+            
+            // Hide confirm modal and show reject modal
+            var confirmModalInstance = bootstrap.Modal.getInstance(confirmModal);
+            confirmModalInstance.hide();
+            
+            setTimeout(function() {
+                var rejectModalInstance = new bootstrap.Modal(rejectModal);
+                rejectModalInstance.show();
+            }, 300);
+        });
+
+        // Handle submit reject button
+        document.getElementById('submitRejectButton').addEventListener('click', function() {
+            var rejectReason = document.getElementById('rejectReasonInput').value.trim();
+            
+            if (!rejectReason) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Alasan Diperlukan',
+                    text: 'Silakan masukkan alasan penolakan pembayaran.',
+                    showConfirmButton: true
+                });
+                return;
+            }
+            
+            // Set the reason to hidden input
+            document.getElementById('rejectReasonHidden').value = rejectReason;
+            
+            var form = document.getElementById('rejectForm');
             var input = document.createElement("input");
             input.type = "hidden";
             input.name = "reject_payment";
             input.value = "1";
             form.appendChild(input);
             form.submit();
+        });
+
+        // Reset reject modal when hidden
+        rejectModal.addEventListener('hidden.bs.modal', function() {
+            document.getElementById('rejectReasonInput').value = '';
         });
 
         // SweetAlert for payment actions

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: May 31, 2025 at 09:35 AM
+-- Generation Time: Jun 12, 2025 at 05:15 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -79,7 +79,8 @@ INSERT INTO `games` (`id_game`, `nama`, `tahun_rilis`, `kategori`, `mode_game`, 
 (18, 'Cyberpunk 2077', '2020', 'Action', 'Single Player', 'game_6839a28be91199.70124082.jpg'),
 (19, 'Paper Mario', '2020', 'Adventure', 'Single Player', 'game_6839a2a9de7360.05116575.jpg'),
 (20, 'Assassin\'s Creed', '2007', 'Stealth', 'Single Player', 'game_6839a2c1820093.91069019.jpg'),
-(21, 'Grand Theft Auto V', '2013', 'Adventure', 'Multi Player', 'game_6839a2d6c344f0.51821553.jpg');
+(21, 'Grand Theft Auto V', '2013', 'Adventure', 'Multi Player', 'game_6839a2d6c344f0.51821553.jpg'),
+(24, 'Mawudgesss', '505050', 'Action', 'Multi Player', 'game_68499fc114aea5.12730160.png');
 
 -- --------------------------------------------------------
 
@@ -104,12 +105,13 @@ CREATE TABLE `payments` (
 INSERT INTO `payments` (`id_payments`, `amount`, `payment_method`, `payment_proof`, `payment_status`, `payment_date`, `created_at`) VALUES
 (1, 52000.00, 'BRI', 'payment_1748616315.png', 'rejected', '2025-05-30 21:45:15', '2025-05-30 14:45:15'),
 (2, 26000.00, 'GoPay', 'payment_1748617342.png', 'expired', '2025-05-30 22:02:22', '2025-05-30 15:02:22'),
-(3, 20000.00, 'BCA', 'payment_1748618664.png', 'pending', '2025-05-30 22:24:24', '2025-05-30 15:24:24'),
+(3, 20000.00, 'BCA', 'payment_1748618664.png', 'rejected', '2025-05-30 22:24:24', '2025-05-30 15:24:24'),
 (4, 52000.00, 'BCA', 'payment_1748626127.png', 'pending', '2025-05-31 00:28:47', '2025-05-30 17:28:47'),
-(5, 78000.00, 'BCA', 'payment_1748626194.png', 'pending', '2025-05-31 00:29:54', '2025-05-30 17:29:54'),
-(6, 13000.00, 'BRI', 'payment_1748626220.jpeg', 'pending', '2025-05-31 00:30:20', '2025-05-30 17:30:20'),
-(7, 26000.00, 'BRI', 'payment_1748674563.jpeg', 'pending', '2025-05-31 13:56:03', '2025-05-31 06:56:03'),
-(8, 75000.00, 'BCA', 'payment_1748675792.png', 'pending', '2025-05-31 14:16:32', '2025-05-31 07:16:32');
+(5, 78000.00, 'BCA', 'payment_1748626194.png', 'confirmed', '2025-05-31 00:29:54', '2025-05-30 17:29:54'),
+(6, 13000.00, 'BRI', 'payment_1748626220.jpeg', 'rejected', '2025-05-31 00:30:20', '2025-05-30 17:30:20'),
+(7, 26000.00, 'BRI', 'payment_1748674563.jpeg', 'confirmed', '2025-05-31 13:56:03', '2025-05-31 06:56:03'),
+(8, 75000.00, 'BCA', 'payment_1748675792.png', 'rejected', '2025-05-31 14:16:32', '2025-05-31 07:16:32'),
+(9, 39000.00, 'Mandiri', 'payment_1749538892.png', 'confirmed', '2025-06-10 14:01:32', '2025-06-10 07:01:32');
 
 -- --------------------------------------------------------
 
@@ -127,22 +129,24 @@ CREATE TABLE `reservasi` (
   `telp` varchar(50) NOT NULL,
   `reservation_date` date NOT NULL,
   `start_time` time NOT NULL,
-  `end_time` time NOT NULL
+  `end_time` time NOT NULL,
+  `keterangan_penolakan` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `reservasi`
 --
 
-INSERT INTO `reservasi` (`id_reservasi`, `id_room`, `id_user`, `id_payments`, `nama`, `username`, `telp`, `reservation_date`, `start_time`, `end_time`) VALUES
-(1, 4, 1, 1, 'Aqsha Muhaimin', 'aksa.jr', '+6282177889149', '2025-05-31', '08:00:00', '12:00:00'),
-(2, 4, 3, 2, 'haris', 'haris.nst', '+62123456789', '2025-05-31', '12:15:00', '14:15:00'),
-(3, 9, 3, 3, 'haris', 'haris.nst', '+62123', '2025-06-03', '08:00:00', '09:00:00'),
-(4, 2, 3, 4, 'haris', 'haris.nst', '+62123', '2025-06-02', '08:00:00', '12:00:00'),
-(5, 2, 3, 5, 'haris', 'haris.nst', '+62123', '2025-06-03', '08:00:00', '14:00:00'),
-(6, 2, 3, 6, 'haris', 'haris.nst', '+62', '2025-06-03', '14:15:00', '15:15:00'),
-(7, 5, 1, 7, 'Aqsha Muhaimin', 'aksa.jr', '+62123', '2025-05-31', '08:00:00', '10:00:00'),
-(8, 7, 12, 8, 'ibay', 'ibay', '+62123', '2025-06-01', '08:00:00', '13:00:00');
+INSERT INTO `reservasi` (`id_reservasi`, `id_room`, `id_user`, `id_payments`, `nama`, `username`, `telp`, `reservation_date`, `start_time`, `end_time`, `keterangan_penolakan`) VALUES
+(1, 4, 1, 1, 'Aqsha Muhaimin', 'aksa.jr', '+6282177889149', '2025-05-31', '08:00:00', '12:00:00', NULL),
+(2, 4, 3, 2, 'haris', 'haris.nst', '+62123456789', '2025-05-31', '12:15:00', '14:15:00', NULL),
+(3, 9, 3, 3, 'haris', 'haris.nst', '+62123', '2025-06-03', '08:00:00', '09:00:00', 'muka lu jelek'),
+(4, 2, 3, 4, 'haris', 'haris.nst', '+62123', '2025-06-02', '08:00:00', '12:00:00', NULL),
+(5, 2, 3, 5, 'haris', 'haris.nst', '+62123', '2025-06-03', '08:00:00', '14:00:00', NULL),
+(6, 2, 3, 6, 'haris', 'haris.nst', '+62', '2025-06-03', '14:15:00', '15:15:00', 'pembayaran tidak valid'),
+(7, 5, 1, 7, 'Aqsha Muhaimin', 'aksa.jr', '+62123', '2025-05-31', '08:00:00', '10:00:00', NULL),
+(8, 7, 12, 8, 'ibay', 'ibay', '+62123', '2025-06-01', '08:00:00', '13:00:00', NULL),
+(9, 3, 12, 9, 'ibay', 'ibay', '+622345', '2025-06-11', '09:15:00', '12:15:00', NULL);
 
 -- --------------------------------------------------------
 
@@ -195,6 +199,29 @@ INSERT INTO `room` (`id_room`, `section_room`, `type_room`, `harga`, `keterangan
 (7, 'vip 2', 'vip', 15000, 'Nikmati pengalaman gaming next-gen dengan PlayStation 5 dan TV 4K untuk kualitas visual terbaik. Fasilitas yang tersedia meliputi PS5, DualSense Controller, TV 4K, dan koleksi game PS5. Cocok untuk 2–3 pemain dengan harga sewa Rp 15.000 per jam.', 'room_6839a4efb7f9b1.85153842.jpeg'),
 (8, 'vip 3', 'vip', 15000, 'Nikmati pengalaman gaming next-gen dengan PlayStation 5 dan TV 4K untuk kualitas visual terbaik. Fasilitas yang tersedia meliputi PS5, DualSense Controller, TV 4K, dan koleksi game PS5. Cocok untuk 2–3 pemain dengan harga sewa Rp 15.000 per jam.', 'room_6839a4fa34f7e7.57716925.jpeg'),
 (9, 'private 1', 'private', 20000, 'Ruang privat ideal untuk sesi gaming eksklusif atau acara gathering kecil. Dilengkapi dengan PS4/PS5, 4 controller, smart TV 55 inci, sofa yang nyaman, serta snack & minuman. Direkomendasikan untuk 4–6 orang, dengan tarif Rp 20.000 per jam.', 'room_6839a61f516045.36833343.png');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `trending_games`
+--
+
+CREATE TABLE `trending_games` (
+  `id` int(11) NOT NULL,
+  `nama` varchar(50) NOT NULL,
+  `gambar` varchar(50) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `trending_games`
+--
+
+INSERT INTO `trending_games` (`id`, `nama`, `gambar`) VALUES
+(1, 'Fifa', 'trending_6849b1abca2916.37394046.avif'),
+(7, 'Gta', 'trending_6849b7f3d70e10.75899409.avif'),
+(8, 'Wutharing Wave', 'trending_6849b80d9a1da0.47958323.avif'),
+(9, 'Genshin Impact', 'trending_6849b81ea187f9.80705282.avif'),
+(10, 'Nba', 'trending_6849b841a64b99.15804951.avif');
 
 -- --------------------------------------------------------
 
@@ -281,6 +308,12 @@ ALTER TABLE `room`
   ADD PRIMARY KEY (`id_room`);
 
 --
+-- Indexes for table `trending_games`
+--
+ALTER TABLE `trending_games`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `users`
 --
 ALTER TABLE `users`
@@ -301,19 +334,19 @@ ALTER TABLE `admin`
 -- AUTO_INCREMENT for table `games`
 --
 ALTER TABLE `games`
-  MODIFY `id_game` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
+  MODIFY `id_game` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
 
 --
 -- AUTO_INCREMENT for table `payments`
 --
 ALTER TABLE `payments`
-  MODIFY `id_payments` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id_payments` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `reservasi`
 --
 ALTER TABLE `reservasi`
-  MODIFY `id_reservasi` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id_reservasi` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `review`
@@ -325,7 +358,13 @@ ALTER TABLE `review`
 -- AUTO_INCREMENT for table `room`
 --
 ALTER TABLE `room`
-  MODIFY `id_room` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `id_room` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+
+--
+-- AUTO_INCREMENT for table `trending_games`
+--
+ALTER TABLE `trending_games`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `users`

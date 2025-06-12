@@ -71,6 +71,12 @@
                                 <span>Kelola Game</span>
                             </a>
                         </li>
+                        <li class="sidebar-item <?php echo ($currentPage == 'dataTrending.php') ? 'active' : ''; ?>">
+                            <a href="dataTrending.php" class='sidebar-link'>
+                                <i class="bi bi-fire"></i>
+                                <span>Trending Games</span>
+                            </a>
+                        </li>
                         <li class="sidebar-item <?php echo ($currentPage == 'dataCustomer.php') ? 'active' : ''; ?>">
                             <a href="dataCustomer.php" class='sidebar-link'>
                                 <i class="bi bi-people-fill"></i>
